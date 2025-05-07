@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator nestjsDto {
+  provider                        = "prisma-generator-nestjs-dto"
+  output                          = "../src/generated"
+  outputToNestJsResourceStructure = "false"
+  flatResourceStructure           = "false"
+  exportRelationModifierClasses   = "true"
+  reExport                        = "true"
+  createDtoPrefix                 = "Create"
+  updateDtoPrefix                 = "Update"
+  dtoSuffix                       = "Dto"
+  entityPrefix                    = ""
+  entitySuffix                    = "Entity"
+  classValidation                 = "true"
+  fileNamingStyle                 = "kebab"
+  noDependencies                  = "false"
+  outputType                      = "class"
+  prettier                        = "true"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum RoleType {
+  USER
+  ADMIN
+}
+
+enum CurrencyType {
+  DOLLAR
+  POUND
+  EURO
+  VND
+}
+
+enum SkincareConcern {
+  ACNE_BLEMISHES
+  ANTI_AGING
+  BLACKHEADS_PORES
+  COMBINATION_SKIN
+  DAMAGED_SKIN_BARRIER
+  DARK_CIRCLES
+  DRY_SKIN
+  DULL_SKIN
+  OILY_SKIN
+  PIGMENTATION
+  REDNESS
+  SENSITIVE_SKIN
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED_AMOUNT
+}
+
+enum DiscountStatus {
+  UPCOMING
+  ACTIVE
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPING
+  DELIVERED
+  CANCELED
+}
+
+enum PaymentMethod {
+  COD // CASH ON DELIVERY
+  VNPAY
+}
+
+enum PaymentStatus {
+  UNPAID
+  FAILED
+  PAID
+}
+
+model User {
+  id       String    @id(map: "pk_user") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  name     String    @map("name") @db.VarChar(255)
+  avatar   String?   @map("avatar") @db.VarChar(255)
+  email    String    @unique @map("email") @db.VarChar(255)
+  location String?   @map("location") @db.VarChar(255)
+  dob      DateTime? @map("date_of_birth") @db.Timestamptz(6)
+  gender   Gender    @default(FEMALE) @map("gender")
+  role     RoleType  @default(USER) @map("role")
+
+  orders     Order[]
+  wishlists  Wishlist[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  addresses  ShippingAddress[]
+  ratings    Rating[]
+  comments Comment[]
+
+  @@map("user")
+}
+
+model Product {
+  id                  String            @id(map: "pk_product") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  thumbnail           String            @map("thumbnail") @db.VarChar(255)
+  additionalImages    String[]          @default([]) @map("additional_images")
+  title               String            @map("title") @db.VarChar(255)
+  price               Float             @map("price") @db.DoublePrecision
+  currency            CurrencyType      @map("currency")
+  description         String?           @map("description") @db.Text
+  howToUse            String?           @map("how_to_use") @db.Text
+  ingredientBenefits  String?           @map("ingredient_benefits") @db.Text
+  fullIngredientsList String?           @map("full_ingredients_list") @db.Text
+  skincareConcerns    SkincareConcern[] @map("skincare_concerns")
+  createdAt           DateTime          @default(now()) @db.Timestamp()
+
+  wishlists  Wishlist[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  ratings    Rating[]
+  comments Comment[]
+
+  @@map("product")
+}
+
+model Wishlist {
+  userId    String   @map("user_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp()
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_wishlist_user")
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_wishlist_product")
+
+  @@id([userId, productId])
+  @@map("wishlist")
+}
+
+model CartItem {
+  productId String   @map("product_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  quantity  Int      @map("quantity")
+  createdAt DateTime @default(now()) @db.Timestamp()
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_cart_item_user")
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_cart_item_product")
+
+  @@id([userId, productId])
+  @@map("cart_item")
+}
+
+model ShippingAddress {
+  id         String   @id(map: "pk_shipping_address") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  phone      String   @map("phone") @db.VarChar(15)
+  address    String   @map("address") @db.Text
+  district   String?  @map("district") @db.VarChar(100)
+  city       String?  @map("city") @db.VarChar(100)
+  country    String?  @map("country") @db.VarChar(50)
+  postalCode String?  @map("postal_code") @db.VarChar(20)
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @db.Timestamp()
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_shipping_address_user")
+  orders Order[]
+
+  @@map("shipping_address")
+}
+
+model Discount {
+  id            String         @id(map: "pk_discount") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  title         String         @map("title") @db.VarChar(255)
+  description   String?        @map("description") @db.Text
+  discountType  DiscountType   @map("discount_type")
+  discountValue Float          @map("discount_value") @db.DoublePrecision
+  startTime     DateTime       @map("start_time") @db.Time()
+  endTime       DateTime       @map("end_time") @db.Time()
+  status        DiscountStatus @default(UPCOMING) @map("status")
+  createdAt     DateTime       @default(now()) @db.Timestamp()
+
+  products DiscountProduct[]
+
+  @@map("discount")
+}
+
+model DiscountProduct {
+  id          String   @id(map: "pk_discount_product") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  orderItemId String   @map("order_item_id") @db.Uuid
+  discountId  String   @map("discount_id") @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamp()
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  discount  Discount  @relation(fields: [discountId], references: [id])
+
+  @@map("discount_product")
+}
+
+model OrderItem {
+  id             String   @id(map: "pk_order_item") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  orderId        String   @map("order_id") @db.Uuid
+  productId      String   @map("product_id") @db.Uuid
+  quantity       Int      @map("quantity")
+  originalPrice  Float    @map("original_price") @db.DoublePrecision
+  finalPrice     Float    @map("final_price") @db.DoublePrecision
+  discountAmount Float    @map("discount_amount") @db.DoublePrecision
+  note           String?  @map("note") @db.Text
+  createdAt      DateTime @default(now()) @db.Timestamp()
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_item_user")
+  order     Order             @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "fk_order_item_order")
+  product   Product           @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_order_item_product")
+  discounts DiscountProduct[]
+
+  @@map("order_item")
+}
+
+model Order {
+  id                String        @id(map: "pk_order") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId            String        @map("user_id") @db.Uuid
+  shippingAddressId String        @map("shipping_address_id") @db.Uuid
+  status            OrderStatus   @default(PENDING) @map("status")
+  totalAmount       Float         @map("total_amount") @db.DoublePrecision
+  totalDiscount     Float         @map("total_discount") @db.DoublePrecision
+  shippingFee       Float         @default(0) @map("shipping_fee") @db.DoublePrecision
+  finalAmount       Float         @map("final_amount") @db.DoublePrecision
+  paymentMethod     PaymentMethod @map("payment_method")
+  paymentStatus     PaymentStatus @default(UNPAID) @map("payment_status")
+  createdAt         DateTime      @default(now()) @db.Timestamp()
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_user")
+  shippingAddress ShippingAddress @relation(fields: [shippingAddressId], references: [id], onUpdate: Cascade, map: "fk_order_shipping_address")
+  orderItems      OrderItem[]
+
+  @@map("order")
+}
+
+
+model Rating {
+  id        String   @id(map: "pk_rating") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  rating    Int     @map("rating") @db.Integer
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_rating_user")
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_rating_product")
+
+  @@map("rating")
+}
+
+model Comment {
+  id       String   @id(map: "pk_comment") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId   String   @map("author_id") @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  parentId String?  @map("parent_id") @db.Uuid
+  content  String   @map("content") @db.Text
+  images    String[] @default([]) @map("images")
+  createdAt DateTime @default(now()) @db.Timestamp()
+
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_comment_product")
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_comment_user")
+  parent   Comment?  @relation("comment_nesting", fields: [parentId], references: [id], onDelete: Cascade, map: "fk_comment_self")
+  children Comment[] @relation("comment_nesting")
+
+  @@map("comment")
+}
