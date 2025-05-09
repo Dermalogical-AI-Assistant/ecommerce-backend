@@ -35,7 +35,7 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-  .setTitle('5glassesNews')
+  .setTitle('Ecommerce Service')
   .setDescription('API document')
   .setVersion('1.0')
   .addBearerAuth()

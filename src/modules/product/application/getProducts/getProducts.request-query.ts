@@ -3,7 +3,7 @@ import { Prisma, SkincareConcern } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import { IsArray, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { IsOrderQueryParam } from 'src/common/decorator/order.decorator';
-import { GetNewsOrderByEnum } from '../../product.enum';
+import { GetProductOrderByEnum } from '../../product.enum';
 
 export class GetProductsRequestQuery {
   @ApiPropertyOptional({
@@ -46,11 +46,11 @@ export class GetProductsRequestQuery {
   perPage?: number = 10;
 
   @ApiPropertyOptional({
-    description: `Order by keyword. \n\n  Available values: ${Object.values(GetNewsOrderByEnum)}`,
-    example: `${GetNewsOrderByEnum.TITLE}:${Prisma.SortOrder.asc}`,
+    description: `Order by keyword. \n\n  Available values: ${Object.values(GetProductOrderByEnum)}`,
+    example: `${GetProductOrderByEnum.TITLE}:${Prisma.SortOrder.asc}`,
   })
   @IsOptional()
   @IsString()
-  @IsOrderQueryParam('order', GetNewsOrderByEnum)
+  @IsOrderQueryParam('order', GetProductOrderByEnum)
   order?: string;
 }
