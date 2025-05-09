@@ -36,6 +36,12 @@ export class ProductEntity {
   })
   currency: CurrencyType;
   @ApiProperty({
+    type: 'number',
+    format: 'float',
+    required: false,
+  })
+  averageRating: number;
+  @ApiProperty({
     required: false,
     nullable: true,
   })

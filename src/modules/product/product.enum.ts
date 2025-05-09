@@ -1,6 +1,7 @@
-export enum GetNewsOrderByEnum {
+export enum GetProductOrderByEnum {
   TITLE = 'title',
-  PUBLISH_DATE = 'publishDate',
-  AUTHOR = 'author',
-  REACTIONS = 'reactions'
+  PRICE = 'price',
+  CREATED_AT = 'createdAt',
+  BEST_SELLER = 'bestSeller',
+  MOST_LOVED = 'mostLoved'
 }

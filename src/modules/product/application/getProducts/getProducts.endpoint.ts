@@ -4,7 +4,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { GetProductsQuery } from './getProducts.query';
 import { GetProductsRequestQuery } from './getProducts.request-query';
-import { GetNewsQueryResponse } from './getProducts.response';
+import { GetProductsQueryResponse } from './getProducts.response';
 import { PaginatedOutputDto } from 'src/common/dto/pageOutput.dto';
 
 @ApiTags('Product')
@@ -17,7 +17,7 @@ export class GetProductsEndpoint {
 
   @ApiOperation({ description: 'Get all products' })
   @Get()
-  public get(@Query() query: GetProductsRequestQuery): Promise<PaginatedOutputDto<GetNewsQueryResponse>> {
-    return this.queryBus.execute<GetProductsQuery, PaginatedOutputDto<GetNewsQueryResponse>>(new GetProductsQuery(query));
+  public get(@Query() query: GetProductsRequestQuery): Promise<PaginatedOutputDto<GetProductsQueryResponse>> {
+    return this.queryBus.execute<GetProductsQuery, PaginatedOutputDto<GetProductsQueryResponse>>(new GetProductsQuery(query));
   }
 }

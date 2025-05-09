@@ -14,8 +14,8 @@ import { RoleGuard } from 'src/common/role/role.guard';
   version: '1',
 })
 @ApiBearerAuth()
-// @UseGuards(AuthenGuard, RoleGuard)
-// @Role(RoleType.ADMIN)
+@UseGuards(AuthenGuard, RoleGuard)
+@Role(RoleType.ADMIN)
 export class CreateProductEndpoint {
   constructor(protected commandBus: CommandBus) {}
 

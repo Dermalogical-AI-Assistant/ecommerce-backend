@@ -2,12 +2,11 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Prisma } from '@prisma/client';
 import { filterString } from 'src/common/utils/string';
 import { PrismaService } from 'src/database';
-import { GetNewsQueryResponse } from './getProducts.response';
+import { GetProductsQueryResponse } from './getProducts.response';
 import { GetProductsQuery } from './getProducts.query';
 import { GetProductsRequestQuery } from './getProducts.request-query';
-import { GetNewsOrderByEnum } from '../../product.enum';
 import * as _ from 'lodash';
-import { getOrderByDefault } from 'src/common/utils/order';
+import { GetProductOrderByEnum } from '../../product.enum';
 
 @QueryHandler(GetProductsQuery)
 export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
@@ -15,7 +14,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
 
   public async execute({
     query,
-  }: GetProductsQuery): Promise<GetNewsQueryResponse> {
+  }: GetProductsQuery): Promise<GetProductsQueryResponse> {
     const { perPage, page } = query;
 
     const { total, products } = await this.getProducts(query);
@@ -29,7 +28,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
       data: products,
     };
 
-    return response as GetNewsQueryResponse;
+    return response as GetProductsQueryResponse;
   }
 
   private async getProducts(options: GetProductsRequestQuery) {
@@ -55,7 +54,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
       whereCondition = {
         ...whereCondition,
         skincareConcerns: {
-          hasSome: skincareConcerns
+          hasSome: skincareConcerns,
         },
       };
     }
@@ -76,6 +75,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
           additionalImages: true,
           price: true,
           currency: true,
+          averageRating: true,
           title: true,
           description: true,
           howToUse: true,
@@ -84,12 +84,36 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
           ingredientBenefits: true,
           createdAt: true,
         },
-        orderBy: getOrderByDefault(order),
+        orderBy: this.getOrderBy(order),
         skip: page * perPage,
         take: perPage,
       }),
     ]);
 
     return { total, products };
+  }
+
+  private getOrderBy(order?: string): { [key: string]: any } {
+    if (!order) {
+      return {
+        createdAt: Prisma.SortOrder.desc,
+      };
+    }
+    const [field, direction] = order.split(':');
+
+    switch (field) {
+      case GetProductOrderByEnum.MOST_LOVED: {
+        return { averageRating: Prisma.SortOrder.desc };
+      }
+      case GetProductOrderByEnum.BEST_SELLER: {
+        return {
+          orderItems: {
+            _count: Prisma.SortOrder.desc
+          }
+        };
+      }
+      default:
+        return { [field]: direction };
+    }
   }
 }

@@ -105,7 +105,7 @@ model User {
   orderItems OrderItem[]
   addresses  ShippingAddress[]
   ratings    Rating[]
-  comments Comment[]
+  comments   Comment[]
 
   @@map("user")
 }
@@ -117,6 +117,7 @@ model Product {
   title               String            @map("title") @db.VarChar(255)
   price               Float             @map("price") @db.DoublePrecision
   currency            CurrencyType      @map("currency")
+  averageRating       Float             @default(0) @map("average_rating") @db.DoublePrecision
   description         String?           @map("description") @db.Text
   howToUse            String?           @map("how_to_use") @db.Text
   ingredientBenefits  String?           @map("ingredient_benefits") @db.Text
@@ -128,7 +129,7 @@ model Product {
   cartItems  CartItem[]
   orderItems OrderItem[]
   ratings    Rating[]
-  comments Comment[]
+  comments   Comment[]
 
   @@map("product")
 }
@@ -244,12 +245,11 @@ model Order {
   @@map("order")
 }
 
-
 model Rating {
-  id        String   @id(map: "pk_rating") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  productId String   @map("product_id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  rating    Int     @map("rating") @db.Integer
+  id        String @id(map: "pk_rating") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  productId String @map("product_id") @db.Uuid
+  userId    String @map("user_id") @db.Uuid
+  rating    Int    @map("rating") @db.Integer
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_rating_user")
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_rating_product")
@@ -258,15 +258,15 @@ model Rating {
 }
 
 model Comment {
-  id       String   @id(map: "pk_comment") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  userId   String   @map("author_id") @db.Uuid
-  productId   String   @map("product_id") @db.Uuid
-  parentId String?  @map("parent_id") @db.Uuid
-  content  String   @map("content") @db.Text
+  id        String   @id(map: "pk_comment") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId    String   @map("author_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  parentId  String?  @map("parent_id") @db.Uuid
+  content   String   @map("content") @db.Text
   images    String[] @default([]) @map("images")
   createdAt DateTime @default(now()) @db.Timestamp()
 
-  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_comment_product")
+  product  Product   @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_comment_product")
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_comment_user")
   parent   Comment?  @relation("comment_nesting", fields: [parentId], references: [id], onDelete: Cascade, map: "fk_comment_self")
   children Comment[] @relation("comment_nesting")
