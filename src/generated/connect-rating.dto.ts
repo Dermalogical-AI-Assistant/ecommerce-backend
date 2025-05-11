@@ -1,3 +1,1 @@
-export class ConnectRatingDto {
-  id: string;
-}
+export class ConnectRatingDto {}

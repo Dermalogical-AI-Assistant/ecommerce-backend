@@ -1,6 +1,6 @@
 import { DiscountType, DiscountStatus } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { DiscountProductEntity } from './discount-product.entity';
+import { DiscountOrderEntity } from './discount-order.entity';
 
 export class DiscountEntity {
   @ApiProperty({
@@ -54,5 +54,5 @@ export class DiscountEntity {
     isArray: true,
     required: false,
   })
-  products?: DiscountProductEntity[];
+  products?: DiscountOrderEntity[];
 }

@@ -47,6 +47,7 @@ CREATE TABLE "product" (
     "title" VARCHAR(255) NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "currency" "CurrencyType" NOT NULL,
+    "average_rating" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "description" TEXT,
     "how_to_use" TEXT,
     "ingredient_benefits" TEXT,
@@ -108,13 +109,13 @@ CREATE TABLE "discount" (
 );
 
 -- CreateTable
-CREATE TABLE "discount_product" (
+CREATE TABLE "discount_order" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "order_item_id" UUID NOT NULL,
     "discount_id" UUID NOT NULL,
     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "pk_discount_product" PRIMARY KEY ("id")
+    CONSTRAINT "pk_discount_order" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -152,12 +153,11 @@ CREATE TABLE "order" (
 
 -- CreateTable
 CREATE TABLE "rating" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "product_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
+    "product_id" UUID NOT NULL,
     "rating" INTEGER NOT NULL,
 
-    CONSTRAINT "pk_rating" PRIMARY KEY ("id")
+    CONSTRAINT "rating_pkey" PRIMARY KEY ("user_id","product_id")
 );
 
 -- CreateTable
@@ -192,10 +192,10 @@ ALTER TABLE "cart_item" ADD CONSTRAINT "fk_cart_item_product" FOREIGN KEY ("prod
 ALTER TABLE "shipping_address" ADD CONSTRAINT "fk_shipping_address_user" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "discount_product" ADD CONSTRAINT "discount_product_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "order_item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "discount_order" ADD CONSTRAINT "discount_order_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "order_item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "discount_product" ADD CONSTRAINT "discount_product_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "discount"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "discount_order" ADD CONSTRAINT "discount_order_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "discount"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "order_item" ADD CONSTRAINT "fk_order_item_user" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

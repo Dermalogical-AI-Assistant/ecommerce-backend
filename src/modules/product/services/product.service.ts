@@ -44,9 +44,11 @@ export class ProductService {
         cir_rating: ingredient.cir_rating,
         introtext: ingredient.introtext,
         categories: ingredient.categories,
-        properties: Object.entries(ingredient.boolean_properties)
-          .filter(([_k, v]) => v === true)
-          .map(([k, _v]) => k),
+        properties: ingredient.boolean_properties
+          ? Object.entries(ingredient.boolean_properties)
+              .filter(([_k, v]) => v === true)
+              .map(([k, _v]) => k)
+          : null,
         integer_properties: JSON.stringify(ingredient.integer_properties ?? {}),
         ewg: JSON.stringify(ingredient.ewg ?? {}),
       });
