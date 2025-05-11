@@ -6,21 +6,23 @@ export class RatingEntity {
   @ApiProperty({
     required: false,
   })
-  id: string;
+  userId: string;
   @ApiProperty({
     required: false,
   })
   productId: string;
-  @ApiProperty({
-    required: false,
-  })
-  userId: string;
   @ApiProperty({
     type: 'integer',
     format: 'int32',
     required: false,
   })
   rating: number;
+  @ApiProperty({
+    type: 'string',
+    format: 'date-time',
+    required: false,
+  })
+  createdAt: Date;
   @ApiProperty({
     required: false,
   })

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from './user.entity';
 import { OrderEntity } from './order.entity';
 import { ProductEntity } from './product.entity';
-import { DiscountProductEntity } from './discount-product.entity';
+import { DiscountOrderEntity } from './discount-order.entity';
 
 export class OrderItemEntity {
   @ApiProperty({
@@ -72,5 +72,5 @@ export class OrderItemEntity {
     isArray: true,
     required: false,
   })
-  discounts?: DiscountProductEntity[];
+  discounts?: DiscountOrderEntity[];
 }

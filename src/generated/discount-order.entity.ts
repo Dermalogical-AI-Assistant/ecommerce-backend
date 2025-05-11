@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { OrderItemEntity } from './order-item.entity';
 import { DiscountEntity } from './discount.entity';
 
-export class DiscountProductEntity {
+export class DiscountOrderEntity {
   @ApiProperty({
     required: false,
   })

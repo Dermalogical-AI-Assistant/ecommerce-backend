@@ -188,13 +188,13 @@ model Discount {
   status        DiscountStatus @default(UPCOMING) @map("status")
   createdAt     DateTime       @default(now()) @db.Timestamp()
 
-  products DiscountProduct[]
+  products DiscountOrder[]
 
   @@map("discount")
 }
 
-model DiscountProduct {
-  id          String   @id(map: "pk_discount_product") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+model DiscountOrder {
+  id          String   @id(map: "pk_discount_order") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
   orderItemId String   @map("order_item_id") @db.Uuid
   discountId  String   @map("discount_id") @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamp()
@@ -202,7 +202,7 @@ model DiscountProduct {
   orderItem OrderItem @relation(fields: [orderItemId], references: [id])
   discount  Discount  @relation(fields: [discountId], references: [id])
 
-  @@map("discount_product")
+  @@map("discount_order")
 }
 
 model OrderItem {
@@ -217,10 +217,10 @@ model OrderItem {
   note           String?  @map("note") @db.Text
   createdAt      DateTime @default(now()) @db.Timestamp()
 
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_item_user")
-  order     Order             @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "fk_order_item_order")
-  product   Product           @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_order_item_product")
-  discounts DiscountProduct[]
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_item_user")
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "fk_order_item_order")
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_order_item_product")
+  discounts DiscountOrder[]
 
   @@map("order_item")
 }
@@ -246,14 +246,15 @@ model Order {
 }
 
 model Rating {
-  id        String @id(map: "pk_rating") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  productId String @map("product_id") @db.Uuid
-  userId    String @map("user_id") @db.Uuid
-  rating    Int    @map("rating") @db.Integer
+  userId    String   @map("user_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  rating    Int      @map("rating") @db.Integer
+  createdAt DateTime @default(now()) @db.Timestamp()
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_rating_user")
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_rating_product")
 
+  @@id([userId, productId])
   @@map("rating")
 }
 
