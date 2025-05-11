@@ -28,7 +28,7 @@ export class UpdateProductByIdHandler
 
     await this.productService.validateProductExistsById(id);
 
-    await this.dbContext.product.update({
+    const product = await this.dbContext.product.update({
       where: { id },
       data: {
         thumbnail,
@@ -42,6 +42,26 @@ export class UpdateProductByIdHandler
         ingredientBenefits,
         skincareConcerns,
       },
+      select: {
+        id: true,
+        title: true,
+        averageRating: true,
+        skincareConcerns: true,
+        thumbnail: true,
+        additionalImages: true,
+        createdAt: true,
+        price: true,
+        currency: true,
+        ingredientBenefits: true,
+        fullIngredientsList: true,
+        description: true,
+        howToUse: true,
+      },
     });
+
+    await this.productService.updateProductInNeo4j(
+      product,
+      Boolean(body.fullIngredientsList),
+    );
   }
 }

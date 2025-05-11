@@ -15,5 +15,6 @@ export class DeleteProductByIdHandler
   public async execute({ id }: DeleteProductByIdCommand): Promise<void> {
     await this.productService.validateProductExistsById(id);
     await this.dbContext.product.delete({ where: { id } });
+    await this.productService.deleteProductFromNeo4j(id);
   }
 }

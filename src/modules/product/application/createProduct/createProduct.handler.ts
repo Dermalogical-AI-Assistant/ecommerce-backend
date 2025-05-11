@@ -1,14 +1,18 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PrismaService } from 'src/database';
 import { CreateProductCommand } from './createProduct.command';
+import { ProductService } from '../../services';
 
 @CommandHandler(CreateProductCommand)
 export class CreateProductHandler
   implements ICommandHandler<CreateProductCommand>
 {
-  constructor(private readonly dbContext: PrismaService) {}
+  constructor(
+    private readonly dbContext: PrismaService,
+    private readonly productService: ProductService,
+  ) {}
 
-  public async execute({ body }: CreateProductCommand): Promise<void> {
+  public async execute({ body }: CreateProductCommand): Promise<any> {
     const {
       thumbnail,
       additionalImages,
@@ -19,10 +23,10 @@ export class CreateProductHandler
       fullIngredientsList,
       howToUse,
       ingredientBenefits,
-      skincareConcerns,
     } = body;
 
-    await this.dbContext.product.create({
+    const skincareConcerns = [...new Set(body?.skincareConcerns || [])];
+    const product = await this.dbContext.product.create({
       data: {
         thumbnail,
         additionalImages,
@@ -35,6 +39,23 @@ export class CreateProductHandler
         ingredientBenefits,
         skincareConcerns,
       },
+      select: {
+        id: true,
+        title: true,
+        skincareConcerns: true,
+        thumbnail: true,
+        additionalImages: true,
+        createdAt: true,
+        price: true,
+        currency: true,
+        ingredientBenefits: true,
+        fullIngredientsList: true,
+        description: true,
+        howToUse: true,
+      },
     });
+
+    await this.productService.addProductToNeo4j(product);
+    return product;
   }
 }

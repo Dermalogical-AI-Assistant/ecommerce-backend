@@ -7,8 +7,8 @@ import { CommentModule } from './modules/comment';
 @Module({
   imports: [
     // KafkaModule,
-    CommentModule,
     ProductModule,
+    CommentModule,
     ConfigModule.forRoot(),
   ],
   controllers: [],
