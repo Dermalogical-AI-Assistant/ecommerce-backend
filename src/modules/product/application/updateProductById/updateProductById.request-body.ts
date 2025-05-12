@@ -4,15 +4,11 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
-  IsISO8601,
-  IsNumber,
   IsOptional,
   IsPositive,
   IsString,
   IsUrl,
-  IsUUID,
   MaxLength,
-  ValidateIf,
 } from 'class-validator';
 
 export class UpdateProductByIdRequestBody {

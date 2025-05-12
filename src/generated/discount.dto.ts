@@ -1,4 +1,9 @@
-import { DiscountType, DiscountStatus } from '@prisma/client';
+import {
+  DiscountType,
+  DiscountStatus,
+  SkincareConcern,
+  CurrencyType,
+} from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class DiscountDto {
@@ -43,6 +48,32 @@ export class DiscountDto {
     required: false,
   })
   status: DiscountStatus;
+  @ApiProperty({
+    isArray: true,
+    enum: SkincareConcern,
+    required: false,
+  })
+  skincareConcerns: SkincareConcern[];
+  @ApiProperty({
+    type: 'number',
+    format: 'float',
+    required: false,
+    nullable: true,
+  })
+  minPrice: number | null;
+  @ApiProperty({
+    enum: CurrencyType,
+    required: false,
+    nullable: true,
+  })
+  currency: CurrencyType | null;
+  @ApiProperty({
+    type: 'string',
+    format: 'date-time',
+    required: false,
+    nullable: true,
+  })
+  publishDate: Date | null;
   @ApiProperty({
     type: 'string',
     format: 'date-time',

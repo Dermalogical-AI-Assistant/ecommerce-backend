@@ -1,4 +1,4 @@
-import { DiscountType } from '@prisma/client';
+import { DiscountType, CurrencyType } from '@prisma/client';
 import {
   IsDateString,
   IsNotEmpty,
@@ -46,4 +46,29 @@ export class CreateDiscountDto {
   @IsNotEmpty()
   @IsDateString()
   endTime: Date;
+  @ApiProperty({
+    type: 'number',
+    format: 'float',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  minPrice?: number;
+  @ApiProperty({
+    enum: CurrencyType,
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  currency?: CurrencyType;
+  @ApiProperty({
+    type: 'string',
+    format: 'date-time',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsDateString()
+  publishDate?: Date;
 }

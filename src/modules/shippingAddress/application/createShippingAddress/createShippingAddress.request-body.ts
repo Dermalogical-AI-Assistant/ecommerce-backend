@@ -1,26 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Gender, RoleType } from '@prisma/client';
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
-  IsEnum,
-  IsISO8601,
   IsOptional,
   IsString,
-  IsUrl,
-  Matches,
   MaxLength,
 } from 'class-validator';
-
-class shipping {
-  phone: string;
-  address: string;
-  district: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  isDefault: boolean;
-}
 
 export class CreateShippingAddressRequestBody {
   @ApiProperty({
