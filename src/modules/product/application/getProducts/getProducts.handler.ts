@@ -44,6 +44,12 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
             title: filterString(search),
           },
           {
+            description: filterString(search),
+          },
+          {
+            ingredientBenefits: filterString(search),
+          },
+          {
             fullIngredientsList: filterString(search),
           },
         ],

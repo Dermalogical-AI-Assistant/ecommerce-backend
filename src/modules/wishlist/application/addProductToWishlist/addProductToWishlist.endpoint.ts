@@ -23,7 +23,6 @@ export class AddProductToWishlistEndpoint {
     @Body() body: AddProductToWishlistRequestBody,
     @RequestUser() user: LoginUserDto,
   ): Promise<void> {
-    console.log({ user });
     return this.commandBus.execute<AddProductToWishlistCommand, void>(
       new AddProductToWishlistCommand(user.id, body),
     );

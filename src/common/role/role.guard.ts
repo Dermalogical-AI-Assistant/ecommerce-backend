@@ -21,7 +21,6 @@ export class RoleGuard implements CanActivate {
 
     const isAuthorized = requiredRoles.includes(request.user.role);
 
-    console.log({isAuthorized, requiredRoles})
     if (!isAuthorized) {
       throw new ForbiddenException('You do not have permission to use this resource')
     }

@@ -100,9 +100,13 @@ CREATE TABLE "discount" (
     "description" TEXT,
     "discount_type" "DiscountType" NOT NULL,
     "discount_value" DOUBLE PRECISION NOT NULL,
-    "start_time" TIME NOT NULL,
-    "end_time" TIME NOT NULL,
+    "start_time" TIMESTAMP NOT NULL,
+    "end_time" TIMESTAMP NOT NULL,
     "status" "DiscountStatus" NOT NULL DEFAULT 'UPCOMING',
+    "skincare_concerns" "SkincareConcern"[] DEFAULT ARRAY[]::"SkincareConcern"[],
+    "min_price" DOUBLE PRECISION,
+    "currency" "CurrencyType",
+    "publish_date" TIMESTAMP,
     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "pk_discount" PRIMARY KEY ("id")
@@ -156,6 +160,7 @@ CREATE TABLE "rating" (
     "user_id" UUID NOT NULL,
     "product_id" UUID NOT NULL,
     "rating" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "rating_pkey" PRIMARY KEY ("user_id","product_id")
 );

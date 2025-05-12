@@ -1,4 +1,4 @@
-import { DiscountType } from '@prisma/client';
+import { DiscountType, CurrencyType } from '@prisma/client';
 import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -46,4 +46,29 @@ export class UpdateDiscountDto {
   @IsOptional()
   @IsDateString()
   endTime?: Date;
+  @ApiProperty({
+    type: 'number',
+    format: 'float',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  minPrice?: number | null;
+  @ApiProperty({
+    enum: CurrencyType,
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  currency?: CurrencyType | null;
+  @ApiProperty({
+    type: 'string',
+    format: 'date-time',
+    required: false,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsDateString()
+  publishDate?: Date | null;
 }

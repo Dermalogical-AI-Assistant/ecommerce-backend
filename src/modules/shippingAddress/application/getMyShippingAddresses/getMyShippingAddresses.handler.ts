@@ -19,7 +19,7 @@ export class GetMyShippingAddressesHandler
   }: GetMyShippingAddressesQuery): Promise<GetMyShippingAddressesQueryResponse> {
     const { perPage, page } = query;
 
-    const { total, shippingAddresses } = await this.getUsers(query);
+    const { total, shippingAddresses } = await this.getMyShippingAddresses(query);
 
     const response = {
       meta: {
@@ -33,7 +33,7 @@ export class GetMyShippingAddressesHandler
     return response as GetMyShippingAddressesQueryResponse;
   }
 
-  private async getUsers(options: GetMyShippingAddressesRequestQuery) {
+  private async getMyShippingAddresses(options: GetMyShippingAddressesRequestQuery) {
     const { search, page, perPage, order } = options;
 
     const andWhereConditions: Prisma.Enumerable<Prisma.ShippingAddressWhereInput> =

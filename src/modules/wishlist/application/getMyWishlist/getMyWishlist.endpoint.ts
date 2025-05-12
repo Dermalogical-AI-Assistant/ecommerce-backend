@@ -25,7 +25,6 @@ export class GetWishlistEndpoint {
     @Query() query: GetWishlistRequestQuery,
     @RequestUser() user: LoginUserDto
   ): Promise<PaginatedOutputDto<GetMyWishlistQueryResponse>> {
-    console.log({user})
     return this.queryBus.execute<
       GetMyWishlistQuery,
       PaginatedOutputDto<GetMyWishlistQueryResponse>
