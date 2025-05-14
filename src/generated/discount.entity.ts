@@ -85,5 +85,5 @@ export class DiscountEntity {
     isArray: true,
     required: false,
   })
-  products?: DiscountOrderEntity[];
+  orders?: DiscountOrderEntity[];
 }

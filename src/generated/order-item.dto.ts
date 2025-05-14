@@ -6,12 +6,6 @@ export class OrderItemDto {
   })
   id: string;
   @ApiProperty({
-    type: 'integer',
-    format: 'int32',
-    required: false,
-  })
-  quantity: number;
-  @ApiProperty({
     type: 'number',
     format: 'float',
     required: false,

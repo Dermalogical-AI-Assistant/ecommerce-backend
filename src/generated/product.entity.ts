@@ -2,7 +2,6 @@ import { CurrencyType, SkincareConcern } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { WishlistEntity } from './wishlist.entity';
 import { CartItemEntity } from './cart-item.entity';
-import { OrderItemEntity } from './order-item.entity';
 import { RatingEntity } from './rating.entity';
 import { CommentEntity } from './comment.entity';
 
@@ -83,11 +82,6 @@ export class ProductEntity {
     required: false,
   })
   cartItems?: CartItemEntity[];
-  @ApiProperty({
-    isArray: true,
-    required: false,
-  })
-  orderItems?: OrderItemEntity[];
   @ApiProperty({
     isArray: true,
     required: false,
