@@ -8,6 +8,7 @@ import { CartItemModule } from './modules/cartItem/cartItem.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { ShippingAddressModule } from './modules/shippingAddress';
 import { DiscountModule } from './modules/discount';
+import { OrderModule } from './modules/order';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DiscountModule } from './modules/discount';
     RatingModule,
     ShippingAddressModule,
     DiscountModule,
+    OrderModule,
     ConfigModule.forRoot(),
   ],
   controllers: [],

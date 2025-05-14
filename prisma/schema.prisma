@@ -125,11 +125,10 @@ model Product {
   skincareConcerns    SkincareConcern[] @map("skincare_concerns")
   createdAt           DateTime          @default(now()) @db.Timestamp()
 
-  wishlists  Wishlist[]
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  ratings    Rating[]
-  comments   Comment[]
+  wishlists Wishlist[]
+  cartItems CartItem[]
+  ratings   Rating[]
+  comments  Comment[]
 
   @@map("product")
 }
@@ -152,8 +151,9 @@ model CartItem {
   quantity  Int      @map("quantity")
   createdAt DateTime @default(now()) @db.Timestamp()
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_cart_item_user")
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_cart_item_product")
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_cart_item_user")
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_cart_item_product")
+  orderItem OrderItem?
 
   @@id([userId, productId])
   @@map("cart_item")
@@ -193,7 +193,7 @@ model Discount {
 
   createdAt DateTime @default(now()) @db.Timestamp()
 
-  products DiscountOrder[]
+  orders DiscountOrder[]
 
   @@map("discount")
 }
@@ -204,7 +204,7 @@ model DiscountOrder {
   discountId  String   @map("discount_id") @db.Uuid
   createdAt   DateTime @default(now()) @db.Timestamp()
 
-  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  orderItem OrderItem @relation(fields: [orderItemId], onDelete: Cascade, references: [id])
   discount  Discount  @relation(fields: [discountId], references: [id])
 
   @@map("discount_order")
@@ -214,8 +214,7 @@ model OrderItem {
   id             String   @id(map: "pk_order_item") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
   userId         String   @map("user_id") @db.Uuid
   orderId        String   @map("order_id") @db.Uuid
-  productId      String   @map("product_id") @db.Uuid
-  quantity       Int      @map("quantity")
+  productId      String   @unique @map("product_id") @db.Uuid
   originalPrice  Float    @map("original_price") @db.DoublePrecision
   finalPrice     Float    @map("final_price") @db.DoublePrecision
   discountAmount Float    @map("discount_amount") @db.DoublePrecision
@@ -224,9 +223,10 @@ model OrderItem {
 
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_item_user")
   order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "fk_order_item_order")
-  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_order_item_product")
+  cartItem  CartItem        @relation(fields: [userId, productId], references: [userId, productId], onUpdate: Cascade, map: "fk_order_item_cart_item")
   discounts DiscountOrder[]
 
+  @@unique([userId, productId])
   @@map("order_item")
 }
 
@@ -235,11 +235,11 @@ model Order {
   userId            String        @map("user_id") @db.Uuid
   shippingAddressId String        @map("shipping_address_id") @db.Uuid
   status            OrderStatus   @default(PENDING) @map("status")
-  totalAmount       Float         @map("total_amount") @db.DoublePrecision
-  totalDiscount     Float         @map("total_discount") @db.DoublePrecision
+  totalAmount       Float         @default(0) @map("total_amount") @db.DoublePrecision
+  totalDiscount     Float         @default(0) @map("total_discount") @db.DoublePrecision
   shippingFee       Float         @default(0) @map("shipping_fee") @db.DoublePrecision
-  finalAmount       Float         @map("final_amount") @db.DoublePrecision
-  paymentMethod     PaymentMethod @map("payment_method")
+  finalAmount       Float         @default(0) @map("final_amount") @db.DoublePrecision
+  paymentMethod     PaymentMethod @default(COD) @map("payment_method")
   paymentStatus     PaymentStatus @default(UNPAID) @map("payment_status")
   createdAt         DateTime      @default(now()) @db.Timestamp()
 
