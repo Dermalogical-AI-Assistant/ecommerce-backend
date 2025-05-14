@@ -9,10 +9,14 @@ import { RatingModule } from './modules/rating/rating.module';
 import { ShippingAddressModule } from './modules/shippingAddress';
 import { DiscountModule } from './modules/discount';
 import { OrderModule } from './modules/order';
+import { UserModule } from './modules/users/user.module';
+import { KafkaConsumerService } from './modules/kafka/services';
+import { UserService } from './modules/users/services';
+import { UserTopic } from './common/topic/user.topic';
 
 @Module({
   imports: [
-    // KafkaModule,
+    KafkaModule,
     ProductModule,
     CommentModule,
     WishlistModule,
@@ -21,9 +25,29 @@ import { OrderModule } from './modules/order';
     ShippingAddressModule,
     DiscountModule,
     OrderModule,
+    UserModule,
     ConfigModule.forRoot(),
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(
+    private readonly kafkaConsumerService: KafkaConsumerService,
+    private readonly userService: UserService,
+  ) {}
+
+  async onModuleInit() {
+    this.kafkaConsumerService.registerHandler(UserTopic.CREATE_USER, async (message) => {
+      await this.userService.createUser(message);
+    });
+
+    this.kafkaConsumerService.registerHandler(UserTopic.UPDATE_USER, async (message) => {
+      await this.userService.updateUser(message);
+    });
+
+    this.kafkaConsumerService.registerHandler(UserTopic.DELETE_USER, async (message) => {
+      await this.userService.deleteUserById(message);
+    });
+  }
+}
