@@ -8,12 +8,11 @@ import { RoleType } from '@prisma/client';
 
 @CommandHandler(GetOrderByIdCommand)
 export class GetOrderByIdHandler
-  implements ICommandHandler<GetOrderByIdCommand>
-{
+  implements ICommandHandler<GetOrderByIdCommand> {
   constructor(
     private readonly dbContext: PrismaService,
     private readonly orderService: OrderService,
-  ) {}
+  ) { }
 
   public async execute({
     id,
@@ -49,22 +48,14 @@ export class GetOrderByIdHandler
             finalPrice: true,
             originalPrice: true,
             note: true,
-            cartItem: {
+            quantity: true,
+            product: true,
+            createdAt: true,
+            discounts: {
               select: {
-                quantity: true,
-                product: {
-                  select: {
-                    id: true,
-                    title: true,
-                    thumbnail: true,
-                    price: true,
-                    currency: true,
-                    skincareConcerns: true,
-                    averageRating: true,
-                  },
-                },
-              },
-            },
+                discount: true
+              }
+            }
           },
         },
       },

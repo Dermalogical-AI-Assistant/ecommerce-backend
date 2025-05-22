@@ -7,6 +7,12 @@ export class UpdateShippingAddressDto {
   })
   @IsOptional()
   @IsString()
+  title?: string;
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
   phone?: string;
   @ApiProperty({
     required: false,

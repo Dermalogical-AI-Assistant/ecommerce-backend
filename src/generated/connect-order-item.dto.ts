@@ -1,4 +1,3 @@
 export class ConnectOrderItemDto {
-  id?: string;
-  productId?: string;
+  id: string;
 }

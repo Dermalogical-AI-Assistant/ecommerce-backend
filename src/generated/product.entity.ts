@@ -4,6 +4,7 @@ import { WishlistEntity } from './wishlist.entity';
 import { CartItemEntity } from './cart-item.entity';
 import { RatingEntity } from './rating.entity';
 import { CommentEntity } from './comment.entity';
+import { OrderItemEntity } from './order-item.entity';
 
 export class ProductEntity {
   @ApiProperty({
@@ -92,4 +93,9 @@ export class ProductEntity {
     required: false,
   })
   comments?: CommentEntity[];
+  @ApiProperty({
+    isArray: true,
+    required: false,
+  })
+  orderItems?: OrderItemEntity[];
 }

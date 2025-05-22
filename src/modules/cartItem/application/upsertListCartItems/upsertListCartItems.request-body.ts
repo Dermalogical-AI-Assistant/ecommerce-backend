@@ -3,14 +3,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
-  IsOptional,
   IsPositive,
-  IsString,
   IsUUID,
   ValidateNested,
 } from 'class-validator';
 
-export class OrderItemRequest {
+export class CartItemRequest {
   @ApiProperty({
     description: 'Product ID',
     example: '0d24551e-57f0-4702-bdd6-535d010df643',
@@ -24,30 +22,19 @@ export class OrderItemRequest {
   })
   @IsPositive()
   quantity: number;
-
-  @ApiPropertyOptional({
-    description: 'None',
-    example: 'ABC',
-  })
-  @IsOptional()
-  @IsString()
-  note?: string;
 }
 
-export class CreateListOrderItemsRequestBody {
+export class UpsertListCartItemsRequestBody {
   @ApiProperty({
     description: 'List of order items',
-    type: [OrderItemRequest],
+    type: [CartItemRequest],
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => OrderItemRequest)
+  @Type(() => CartItemRequest)
   @Transform(({ value }) => {
     const orderItems = Array.isArray(value) ? value : [value];
-    if (orderItems?.length > 50) {
-      throw new BadRequestException('No more than 50 items in an order!');
-    } 
     return orderItems;
   })
-  orderItems: OrderItemRequest[];
+  cartItems: CartItemRequest[];
 }

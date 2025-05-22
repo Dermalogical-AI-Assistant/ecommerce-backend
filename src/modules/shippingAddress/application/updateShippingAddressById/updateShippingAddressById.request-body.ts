@@ -3,6 +3,15 @@ import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateShippingAddressByIdRequestBody {
   @ApiPropertyOptional({
+    description: 'Title',
+    example: 'Jasmine',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  title?: string;
+
+  @ApiPropertyOptional({
     description: 'Phone',
     example: '0934853507',
   })

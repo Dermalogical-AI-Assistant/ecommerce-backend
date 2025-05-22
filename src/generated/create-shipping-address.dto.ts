@@ -5,6 +5,10 @@ export class CreateShippingAddressDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  title: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   phone: string;
   @ApiProperty()
   @IsNotEmpty()

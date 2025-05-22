@@ -69,12 +69,13 @@ CREATE TABLE "wishlist" (
 
 -- CreateTable
 CREATE TABLE "cart_item" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "product_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "quantity" INTEGER NOT NULL,
     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "cart_item_pkey" PRIMARY KEY ("user_id","product_id")
+    CONSTRAINT "pk_cart_item" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -144,11 +145,11 @@ CREATE TABLE "order" (
     "user_id" UUID NOT NULL,
     "shipping_address_id" UUID NOT NULL,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
-    "total_amount" DOUBLE PRECISION NOT NULL,
-    "total_discount" DOUBLE PRECISION NOT NULL,
+    "total_amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "total_discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "shipping_fee" DOUBLE PRECISION NOT NULL DEFAULT 0,
-    "final_amount" DOUBLE PRECISION NOT NULL,
-    "payment_method" "PaymentMethod" NOT NULL,
+    "final_amount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "payment_method" "PaymentMethod" NOT NULL DEFAULT 'COD',
     "payment_status" "PaymentStatus" NOT NULL DEFAULT 'UNPAID',
     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -181,6 +182,9 @@ CREATE TABLE "comment" (
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "cart_item_user_id_product_id_key" ON "cart_item"("user_id", "product_id");
+
 -- AddForeignKey
 ALTER TABLE "wishlist" ADD CONSTRAINT "fk_wishlist_user" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -197,7 +201,7 @@ ALTER TABLE "cart_item" ADD CONSTRAINT "fk_cart_item_product" FOREIGN KEY ("prod
 ALTER TABLE "shipping_address" ADD CONSTRAINT "fk_shipping_address_user" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "discount_order" ADD CONSTRAINT "discount_order_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "order_item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "discount_order" ADD CONSTRAINT "discount_order_order_item_id_fkey" FOREIGN KEY ("order_item_id") REFERENCES "order_item"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "discount_order" ADD CONSTRAINT "discount_order_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "discount"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -206,10 +210,10 @@ ALTER TABLE "discount_order" ADD CONSTRAINT "discount_order_discount_id_fkey" FO
 ALTER TABLE "order_item" ADD CONSTRAINT "fk_order_item_user" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "order_item" ADD CONSTRAINT "fk_order_item_order" FOREIGN KEY ("order_id") REFERENCES "order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "order_item" ADD CONSTRAINT "fk_cart_item_product" FOREIGN KEY ("product_id") REFERENCES "product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "order_item" ADD CONSTRAINT "fk_order_item_product" FOREIGN KEY ("product_id") REFERENCES "product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "order_item" ADD CONSTRAINT "fk_order_item_order" FOREIGN KEY ("order_id") REFERENCES "order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "order" ADD CONSTRAINT "fk_order_user" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

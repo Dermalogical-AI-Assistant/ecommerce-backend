@@ -73,6 +73,7 @@ export class GetMyShippingAddressesHandler
         },
         select: {
           id: true,
+          title: true,
           phone: true,
           address: true,
           district: true,

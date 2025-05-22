@@ -49,6 +49,7 @@ export class GetMyCartItemsHandler implements IQueryHandler<GetMyCartItemsQuery>
         },
         select: {
           product: true,
+          quantity: true,
           createdAt: true,
         },
         orderBy: this.getOrderBy(order),

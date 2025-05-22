@@ -8,6 +8,14 @@ import {
 
 export class CreateShippingAddressRequestBody {
   @ApiProperty({
+    description: 'Title',
+    example: 'Jasmine',
+  })
+  @IsString()
+  @MaxLength(100)
+  title: string;
+
+  @ApiProperty({
     description: 'Phone',
     example: '0934853507',
   })

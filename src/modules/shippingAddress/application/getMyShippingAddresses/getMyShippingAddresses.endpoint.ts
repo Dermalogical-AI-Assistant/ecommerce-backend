@@ -5,16 +5,13 @@ import { GetMyShippingAddressesQuery } from "./getMyShippingAddresses.query";
 import { GetMyShippingAddressesRequestQuery } from "./getMyShippingAddresses.request-query";
 import { GetMyShippingAddressesQueryResponse } from "./getMyShippingAddresses.response";
 import { PaginatedOutputDto } from "src/common/dto/pageOutput.dto";
-import { Role } from "src/common/role/role.decorator";
-import { RoleType } from "@prisma/client";
-import { RoleGuard } from "src/common/role/role.guard";
 import { AuthenGuard } from "src/common/guard/authen.guard";
 import { RequestUser } from "src/common/decorator/requestUser.decorator";
 import { LoginUserDto } from "src/common/dto/loginUser.dto";
 
 @ApiTags("ShippingAddress")
 @Controller({
-  path: "my-shipping-addreses",
+  path: "my-shipping-addresses",
   version: "1",
 })
 @ApiBearerAuth()

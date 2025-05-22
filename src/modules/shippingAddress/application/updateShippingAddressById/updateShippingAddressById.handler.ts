@@ -19,7 +19,7 @@ export class UpdateShippingAddressByIdHandler
     userId,
     body,
   }: UpdateShippingAddressByIdCommand): Promise<void> {
-    const { phone, address, district, city, country, postalCode, isDefault } =
+    const { title, phone, address, district, city, country, postalCode, isDefault } =
       body;
     await this.shippingAddressService.validateShippingAddress(id, userId);
     await this.dbContext.shippingAddress.update({
@@ -27,6 +27,7 @@ export class UpdateShippingAddressByIdHandler
         id,
       },
       data: {
+        title,
         phone,
         address,
         district,

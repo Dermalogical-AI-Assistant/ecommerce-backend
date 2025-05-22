@@ -19,20 +19,12 @@ export type GetOrderByIdResponse = Prisma.OrderGetPayload<{
         finalPrice: true,
         originalPrice: true,
         note: true,
-        cartItem: {
+        quantity: true,
+        product: true,
+        createdAt: true,
+        discounts: {
           select: {
-            quantity: true,
-            product: {
-              select: {
-                id: true,
-                title: true,
-                thumbnail: true,
-                price: true,
-                currency: true,
-                skincareConcerns: true,
-                averageRating: true,
-              }
-            }
+            discount: true
           }
         }
       }

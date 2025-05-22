@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from './user.entity';
+import { ProductEntity } from './product.entity';
 import { OrderEntity } from './order.entity';
-import { CartItemEntity } from './cart-item.entity';
 import { DiscountOrderEntity } from './discount-order.entity';
 
 export class OrderItemEntity {
@@ -21,6 +21,12 @@ export class OrderItemEntity {
     required: false,
   })
   productId: string;
+  @ApiProperty({
+    type: 'integer',
+    format: 'int32',
+    required: false,
+  })
+  quantity: number;
   @ApiProperty({
     type: 'number',
     format: 'float',
@@ -57,11 +63,11 @@ export class OrderItemEntity {
   @ApiProperty({
     required: false,
   })
-  order?: OrderEntity;
+  product?: ProductEntity;
   @ApiProperty({
     required: false,
   })
-  cartItem?: CartItemEntity;
+  order?: OrderEntity;
   @ApiProperty({
     isArray: true,
     required: false,

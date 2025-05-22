@@ -16,11 +16,12 @@ export class CreateShippingAddressHandler
     userId,
     body,
   }: CreateShippingAddressCommand): Promise<void> {
-    const { phone, address, district, city, country, postalCode, isDefault } =
+    const { title, phone, address, district, city, country, postalCode, isDefault } =
       body;
 
     const shippingAddress = await this.dbContext.shippingAddress.create({
       data: {
+        title,
         userId,
         phone,
         address,

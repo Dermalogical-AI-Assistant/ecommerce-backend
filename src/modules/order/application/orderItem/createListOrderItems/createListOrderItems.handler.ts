@@ -5,12 +5,11 @@ import { OrderService } from 'src/modules/order/services';
 
 @CommandHandler(CreateListOrderItemsCommand)
 export class CreateListOrderItemsHandler
-  implements ICommandHandler<CreateListOrderItemsCommand>
-{
+  implements ICommandHandler<CreateListOrderItemsCommand> {
   constructor(
     private readonly dbContext: PrismaService,
     private readonly orderService: OrderService,
-  ) {}
+  ) { }
 
   public async execute({
     userId,
@@ -27,7 +26,7 @@ export class CreateListOrderItemsHandler
         },
       });
 
-    const order = await this.dbContext.order.create({
+    let order = await this.dbContext.order.create({
       data: {
         userId,
         shippingAddressId: defaultShippingAddress.id,
@@ -40,32 +39,41 @@ export class CreateListOrderItemsHandler
 
     const productIds = [...new Set(orderItems.map((x) => x.productId))];
 
-    const cartItems = await this.dbContext.cartItem.findMany({
-      where: {
-        userId,
-        productId: {
-          in: productIds,
+    const [cartItems, products] = await Promise.all([
+      this.dbContext.cartItem.findMany({
+        where: {
+          userId,
+          productId: {
+            in: productIds,
+          },
         },
-      },
-      select: {
-        product: true,
-        quantity: true
-      },
-    });
+        select: {
+          id: true,
+        },
+      }),
+
+      this.dbContext.product.findMany({
+        where: {
+          id: {
+            in: productIds
+          }
+        }
+      })
+
+    ]);
 
     const createdOrderItems = [];
     let totalAmount = 0;
     let totalDiscount = 0;
 
-    for (const { productId, note } of orderItems) {
-      const cartItem = cartItems.find((x) => x.product.id == productId);
-      const product = cartItem.product;
+    for (const { productId, quantity, note } of orderItems) {
+      const product = products.find(x => x.id == productId);
 
-      const originalPrice = product.price * cartItem.quantity;
+      const originalPrice = product.price * quantity;
       totalAmount += originalPrice;
 
       const { discounts, discountAmount } =
-        await this.orderService.getValidDiscountsForProduct(product, cartItem.quantity);
+        await this.orderService.getValidDiscountsForProduct(product, quantity);
 
       totalDiscount += discountAmount;
 
@@ -73,8 +81,9 @@ export class CreateListOrderItemsHandler
         data: {
           userId,
           orderId: order.id,
-          note,
           productId,
+          quantity,
+          note,
           originalPrice,
           discountAmount,
           finalPrice: originalPrice - discountAmount,
@@ -88,23 +97,24 @@ export class CreateListOrderItemsHandler
         },
         select: {
           id: true,
+          product: true,
+          quantity: true,
           note: true,
           originalPrice: true,
           discountAmount: true,
           finalPrice: true,
-          cartItem: {
+          discounts: {
             select: {
-              quantity: true,
-              product: true,
-            },
-          },
+              discount: true
+            }
+          }
         },
       });
 
       createdOrderItems.push(orderItem);
     }
 
-    await this.dbContext.order.update({
+    order = await this.dbContext.order.update({
       where: {
         id: order.id,
       },
@@ -113,15 +123,32 @@ export class CreateListOrderItemsHandler
         totalDiscount,
         finalAmount: totalAmount - totalDiscount,
       },
+      select: {
+        id: true,
+        shippingAddress: true,
+        totalAmount: true,
+        totalDiscount: true,
+        shippingFee: true,
+        finalAmount: true,
+        status: true,
+        paymentMethod: true,
+        paymentStatus: true,
+        createdAt: true
+      }
     });
 
+    await this.dbContext.cartItem.deleteMany({
+      where: {
+        id: {
+          in: cartItems.map(x => x.id)
+        }
+      }
+    });
+    
     return {
-      orderId: order.id,
-      shippingAddress: order.shippingAddress,
-      totalAmount,
-      totalDiscount,
-      finalAmount: totalAmount - totalDiscount,
+      order,
       orderItems: createdOrderItems,
     };
+
   }
 }

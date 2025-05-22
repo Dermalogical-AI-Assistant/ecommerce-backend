@@ -1,1 +1,3 @@
-export class ConnectCartItemDto {}
+export class ConnectCartItemDto {
+  id: string;
+}

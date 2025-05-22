@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from './user.entity';
 import { ProductEntity } from './product.entity';
-import { OrderItemEntity } from './order-item.entity';
 
 export class CartItemEntity {
+  @ApiProperty({
+    required: false,
+  })
+  id: string;
   @ApiProperty({
     required: false,
   })
@@ -32,9 +35,4 @@ export class CartItemEntity {
     required: false,
   })
   product?: ProductEntity;
-  @ApiProperty({
-    required: false,
-    nullable: true,
-  })
-  orderItem?: OrderItemEntity | null;
 }

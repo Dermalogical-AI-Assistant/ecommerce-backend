@@ -20,17 +20,14 @@ export class DeleteOrderItemByIdHandler
         id,
       },
       select: {
-        cartItem: {
-          select: {
-            product: true,
-            quantity: true,
-          },
-        },
+        product: true,
+        quantity: true,
         order: {
           select: {
             id: true,
             totalAmount: true,
             totalDiscount: true,
+            
           },
         },
       },
@@ -38,13 +35,14 @@ export class DeleteOrderItemByIdHandler
 
     const { discountAmount, discounts } =
       await this.orderService.getValidDiscountsForProduct(
-        orderItem.cartItem.product,
-        orderItem.cartItem.quantity,
+        orderItem.product,
+        orderItem.quantity,
       );
 
     const totalAmount =
       orderItem.order.totalAmount -
-      orderItem.cartItem.product.price * orderItem.cartItem.quantity;
+      orderItem.product.price * orderItem.quantity;
+
     const totalDiscount = orderItem.order.totalDiscount - discountAmount;
     const order = await this.dbContext.order.update({
       where: {
@@ -60,6 +58,7 @@ export class DeleteOrderItemByIdHandler
     await this.dbContext.discountOrder.deleteMany({
       where: { orderItemId: id },
     });
+    
     await this.dbContext.orderItem.delete({ where: { id } });
     return order;
   }

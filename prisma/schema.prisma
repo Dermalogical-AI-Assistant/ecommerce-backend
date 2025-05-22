@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
 }
 
 generator nestjsDto {
@@ -125,10 +125,11 @@ model Product {
   skincareConcerns    SkincareConcern[] @map("skincare_concerns")
   createdAt           DateTime          @default(now()) @db.Timestamp()
 
-  wishlists Wishlist[]
-  cartItems CartItem[]
-  ratings   Rating[]
-  comments  Comment[]
+  wishlists  Wishlist[]
+  cartItems  CartItem[]
+  ratings    Rating[]
+  comments   Comment[]
+  orderItems OrderItem[]
 
   @@map("product")
 }
@@ -146,21 +147,22 @@ model Wishlist {
 }
 
 model CartItem {
+  id        String   @id(map: "pk_cart_item") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
   productId String   @map("product_id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   quantity  Int      @map("quantity")
   createdAt DateTime @default(now()) @db.Timestamp()
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_cart_item_user")
-  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_cart_item_product")
-  orderItem OrderItem?
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_cart_item_user")
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_cart_item_product")
 
-  @@id([userId, productId])
+  @@unique([userId, productId])
   @@map("cart_item")
 }
 
 model ShippingAddress {
   id         String   @id(map: "pk_shipping_address") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  title      String   @map("title") @db.VarChar(100)
   userId     String   @map("user_id") @db.Uuid
   phone      String   @map("phone") @db.VarChar(15)
   address    String   @map("address") @db.Text
@@ -214,7 +216,8 @@ model OrderItem {
   id             String   @id(map: "pk_order_item") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
   userId         String   @map("user_id") @db.Uuid
   orderId        String   @map("order_id") @db.Uuid
-  productId      String   @unique @map("product_id") @db.Uuid
+  productId      String   @map("product_id") @db.Uuid
+  quantity       Int      @map("quantity")
   originalPrice  Float    @map("original_price") @db.DoublePrecision
   finalPrice     Float    @map("final_price") @db.DoublePrecision
   discountAmount Float    @map("discount_amount") @db.DoublePrecision
@@ -222,11 +225,10 @@ model OrderItem {
   createdAt      DateTime @default(now()) @db.Timestamp()
 
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_item_user")
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "fk_cart_item_product")
   order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade, map: "fk_order_item_order")
-  cartItem  CartItem        @relation(fields: [userId, productId], references: [userId, productId], onUpdate: Cascade, map: "fk_order_item_cart_item")
   discounts DiscountOrder[]
 
-  @@unique([userId, productId])
   @@map("order_item")
 }
 

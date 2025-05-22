@@ -10,6 +10,10 @@ export class ShippingAddressEntity {
   @ApiProperty({
     required: false,
   })
+  title: string;
+  @ApiProperty({
+    required: false,
+  })
   userId: string;
   @ApiProperty({
     required: false,

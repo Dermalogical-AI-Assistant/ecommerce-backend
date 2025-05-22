@@ -2,6 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CartItemDto {
   @ApiProperty({
+    required: false,
+  })
+  id: string;
+  @ApiProperty({
     type: 'integer',
     format: 'int32',
     required: false,

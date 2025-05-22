@@ -8,6 +8,10 @@ export class ShippingAddressDto {
   @ApiProperty({
     required: false,
   })
+  title: string;
+  @ApiProperty({
+    required: false,
+  })
   phone: string;
   @ApiProperty({
     required: false,
