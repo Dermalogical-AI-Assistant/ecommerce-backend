@@ -70,7 +70,7 @@ export class GetOrderByIdHandler
       },
     });
 
-    if (order.user.id !== userId || order.user.role != RoleType.ADMIN) {
+    if (order.user.id !== userId && order.user.role != RoleType.ADMIN) {
       throw new BadRequestException('You are not allowed to view this order!');
     }
 
