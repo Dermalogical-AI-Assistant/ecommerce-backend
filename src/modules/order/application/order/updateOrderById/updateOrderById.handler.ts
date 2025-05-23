@@ -27,19 +27,22 @@ export class UpdateOrderByIdHandler
       throw new BadRequestException('This order cannot be updated!');
     }
 
+    const updatedData = {
+      ...(shippingAddressId && { shippingAddressId }),
+      ...(paymentMethod && { paymentMethod }),
+      ...(paymentStatus && { paymentStatus }),
+      ...(status && { status }),
+      ...(shippingFee && {
+        shippingFee, totalAmount: order.totalAmount - order.shippingFee + shippingFee,
+        finalAmount: order.finalAmount - order.shippingFee + shippingFee
+      }),
+    };
+
     await this.dbContext.order.update({
       where: {
         id,
       },
-      data: {
-        shippingAddressId,
-        paymentMethod,
-        paymentStatus,
-        shippingFee,
-        status,
-        totalAmount: order.totalAmount - order.shippingFee + shippingFee,
-        finalAmount: order.finalAmount - order.shippingFee + shippingFee
-      },
+      data: updatedData
     });
   }
 }
