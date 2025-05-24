@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
+import { Prisma, $Enums } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min, IsEnum } from 'class-validator';
 import { IsOrderQueryParam } from 'src/common/decorator/order.decorator';
 import { GetOrdersOrderByEnum } from 'src/modules/order/order.enum';
 
@@ -36,4 +36,13 @@ export class GetMyOrdersRequestQuery {
   @IsString()
   @IsOrderQueryParam('order', GetOrdersOrderByEnum)
   order?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter orders by status',
+    example: 'PENDING',
+    enum: $Enums.OrderStatus,
+  })
+  @IsOptional()
+  @IsEnum($Enums.OrderStatus)
+  status?: $Enums.OrderStatus;
 }

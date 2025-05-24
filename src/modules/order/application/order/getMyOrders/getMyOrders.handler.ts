@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Prisma } from '@prisma/client';
+import { Prisma, $Enums } from '@prisma/client';
 import { PrismaService } from 'src/database';
 import { GetMyOrdersQuery } from './getMyOrders.query';
 import { GetMyOrdersQueryResponse } from './getMyOrders.response';
@@ -36,15 +36,21 @@ export class GetMyOrdersHandler implements IQueryHandler<GetMyOrdersQuery> {
   private async getMyOrders(options: GetMyOrdersQuery) {
     const {
       userId,
-      query: { page, perPage, order },
+      query: { page, perPage, order, status },
     } = options;
+
+    // Build where condition
+    const whereCondition: Prisma.OrderWhereInput = {
+      userId,
+      ...(status && { status: status as $Enums.OrderStatus }),
+    };
 
     const [total, orders] = await Promise.all([
       this.dbContext.order.count({
-        where: { userId },
+        where: whereCondition,
       }),
       this.dbContext.order.findMany({
-        where: { userId },
+        where: whereCondition,
         select: {
           id: true,
           shippingAddress: true,
