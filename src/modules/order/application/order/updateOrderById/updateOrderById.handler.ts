@@ -22,8 +22,9 @@ export class UpdateOrderByIdHandler
       status,
     } = body;
     const order = await this.orderService.validateOrderExistsById(id);
+    console.log("order hhuhu", order)
 
-    if (order.status != OrderStatus.PENDING) {
+    if (order.status != OrderStatus.PENDING && order.status != OrderStatus.DRAF ) {
       throw new BadRequestException('This order cannot be updated!');
     }
 
