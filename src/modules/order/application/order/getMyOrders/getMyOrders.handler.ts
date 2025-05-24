@@ -62,7 +62,24 @@ export class GetMyOrdersHandler implements IQueryHandler<GetMyOrdersQuery> {
           totalDiscount: true,
           finalAmount: true,
           createdAt: true,
-        },
+          orderItems: {
+            select: {
+                id: true,
+                discountAmount: true,
+                finalPrice: true,
+                originalPrice: true,
+                note: true,
+                quantity: true,
+                product: true,
+                createdAt: true,
+                discounts: {
+                  select: {
+                    discount: true
+                  }
+                }
+              },
+            },
+          },
         orderBy: getOrderByDefault(order),
         skip: page * perPage,
         take: perPage,
