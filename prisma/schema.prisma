@@ -71,7 +71,7 @@ enum DiscountStatus {
 }
 
 enum OrderStatus {
-  DRAF
+  DRAFT
   PENDING
   CONFIRMED
   SHIPPING
@@ -237,7 +237,7 @@ model Order {
   id                String        @id(map: "pk_order") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
   userId            String        @map("user_id") @db.Uuid
   shippingAddressId String        @map("shipping_address_id") @db.Uuid
-  status            OrderStatus   @default(DRAF) @map("status")
+  status            OrderStatus   @default(DRAFT) @map("status")
   totalAmount       Float         @default(0) @map("total_amount") @db.DoublePrecision
   totalDiscount     Float         @default(0) @map("total_discount") @db.DoublePrecision
   shippingFee       Float         @default(0) @map("shipping_fee") @db.DoublePrecision

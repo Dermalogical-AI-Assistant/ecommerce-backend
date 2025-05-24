@@ -26,7 +26,7 @@ export class UpdateOrderByIdEndpoint {
     @RequestUser() user: LoginUserDto
   ): Promise<void> {
     return this.commandBus.execute<UpdateOrderByIdCommand, void>(
-      new UpdateOrderByIdCommand(id, user.id, body),
+      new UpdateOrderByIdCommand(id, user, body),
     );
   }
 }
