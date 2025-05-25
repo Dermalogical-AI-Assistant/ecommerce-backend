@@ -3,9 +3,14 @@ import neo4j, { Driver, Session } from 'neo4j-driver';
 import { config } from 'dotenv';
 
 config()
-const NEO4J_URI = process.env.NEO4J_URI;
-const NEO4J_USERNAME = process.env.NEO4J_USERNAME;
-const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD;
+// const NEO4J_URI = process.env.NEO4J_URI;
+// const NEO4J_USERNAME = process.env.NEO4J_USERNAME;
+// const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD;
+const NEO4J_URI="bolt://localhost:7689"
+const NEO4J_USERNAME="neo4j"
+const NEO4J_PASSWORD="Ngoctram123"
+
+console.log({NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD})
 
 @Injectable()
 export class Neo4jService implements OnModuleDestroy {

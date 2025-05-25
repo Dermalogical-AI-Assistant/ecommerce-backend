@@ -6,3 +6,7 @@
 */
 -- AlterTable
 ALTER TABLE "shipping_address" ADD COLUMN     "title" VARCHAR(100) NOT NULL;
+
+
+-- AlterEnum
+ALTER TYPE "OrderStatus" ADD VALUE 'DRAFT';

@@ -1,6 +1,5 @@
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { KafkaModule } from './modules/kafka';
 import { ProductModule } from './modules/product';
 import { CommentModule } from './modules/comment';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
@@ -10,17 +9,18 @@ import { ShippingAddressModule } from './modules/shippingAddress';
 import { DiscountModule } from './modules/discount';
 import { OrderModule } from './modules/order';
 import { UserModule } from './modules/users/user.module';
+import { KafkaModule } from './modules/kafka';
 import { KafkaConsumerService } from './modules/kafka/services';
 import { UserService } from './modules/users/services';
 import { UserTopic } from './common/topic/user.topic';
 
 @Module({
   imports: [
-    KafkaModule,
+    // KafkaModule,
     ProductModule,
     CommentModule,
     WishlistModule,
-    CartItemModule, 
+    CartItemModule,
     RatingModule,
     ShippingAddressModule,
     DiscountModule,
@@ -33,21 +33,21 @@ import { UserTopic } from './common/topic/user.topic';
 })
 export class AppModule {
   constructor(
-    private readonly kafkaConsumerService: KafkaConsumerService,
-    private readonly userService: UserService,
-  ) {}
+    // private readonly kafkaConsumerService: KafkaConsumerService,
+    // private readonly userService: UserService,
+  ) { }
 
   async onModuleInit() {
-    this.kafkaConsumerService.registerHandler(UserTopic.CREATE_USER, async (message) => {
-      await this.userService.createUser(message);
-    });
+    // this.kafkaConsumerService.registerHandler(UserTopic.CREATE_USER, async (message) => {
+    //   await this.userService.createUser(message);
+    // });
 
-    this.kafkaConsumerService.registerHandler(UserTopic.UPDATE_USER, async (message) => {
-      await this.userService.updateUser(message);
-    });
+    // this.kafkaConsumerService.registerHandler(UserTopic.UPDATE_USER, async (message) => {
+    //   await this.userService.updateUser(message);
+    // });
 
-    this.kafkaConsumerService.registerHandler(UserTopic.DELETE_USER, async (message) => {
-      await this.userService.deleteUserById(message);
-    });
+    // this.kafkaConsumerService.registerHandler(UserTopic.DELETE_USER, async (message) => {
+    //   await this.userService.deleteUserById(message);
+    // });
   }
 }
