@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { Neo4jModule } from '../neo4j';
+import { RabbitMqModule } from '../rabbitmq/rabbitmq.module';
 
 const applications = Object.values(useCases);
 const endpoints = applications.filter((x) => x.name.endsWith('Endpoint'));
@@ -24,7 +25,8 @@ const Services = [...Object.values(services)];
     }),
     JwtModule.register({ signOptions: { algorithm: 'HS256' } }),
     ConfigModule.forRoot(),
-    Neo4jModule
+    Neo4jModule,
+    RabbitMqModule
   ],
   controllers: [...endpoints],
   providers: [...handlers, ...Services],

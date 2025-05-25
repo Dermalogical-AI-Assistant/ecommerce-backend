@@ -9,3 +9,16 @@ export const filterString = (
     }
     return undefined;
 };
+
+export const isValidUrl = (str: string): boolean => {
+    try {
+        new URL(str);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+export const getCapitalizedWord = (str: string) => {
+  return `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
+};

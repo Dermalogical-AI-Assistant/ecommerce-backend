@@ -1,5 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 generator nestjsDto {
@@ -268,7 +268,7 @@ model Rating {
 
 model Comment {
   id        String   @id(map: "pk_comment") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  userId    String   @map("author_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
   productId String   @map("product_id") @db.Uuid
   parentId  String?  @map("parent_id") @db.Uuid
   content   String   @map("content") @db.Text
@@ -281,4 +281,26 @@ model Comment {
   children Comment[] @relation("comment_nesting")
 
   @@map("comment")
+}
+
+model ImportFile {
+  id        String   @id(map: "pk_import_file") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  name      String   @map("name") @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamp()
+
+  logs ImportLog[]
+
+  @@map("import_file")
+}
+
+model ImportLog {
+  id        String   @id(map: "pk_import_log") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  fileId    String   @map("file_id") @db.Uuid
+  content   String   @map("content") @db.Text
+  createdAt DateTime @default(now()) @db.Timestamp()
+
+  file ImportFile @relation(fields: [fileId], references: [id], onDelete: Cascade, map: "fk_import_log_import_file")
+
+  @@map("import_log")
 }

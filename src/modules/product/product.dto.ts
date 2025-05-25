@@ -1,3 +1,5 @@
+import { CurrencyType, SkincareConcern } from "@prisma/client";
+
 export type IngredientAnalysis = {
   total_ingredients: number;
   text: string;
@@ -62,3 +64,32 @@ export type IngredientAnalysis = {
     };
   };
 };
+
+export class ImportProductDto {
+  index: number;
+  thumbnail?: string;
+  additionalImages?: string;
+  title?: string;
+  price?: string;
+  currency?: string;
+  averageRating?: string;
+  description?: string;
+  howToUse?: string;
+  ingredientBenefits?: string;
+  fullIngredientsList?: string;
+  skincareConcerns?: string;
+}
+
+export class PreprocessedImportProductDto {
+  thumbnail: string;
+  additionalImages?: string;
+  title: string;
+  price: string;
+  currency: string;
+  averageRating?: string;
+  description?: string;
+  howToUse?: string;
+  ingredientBenefits?: string;
+  fullIngredientsList?: string;
+  skincareConcerns: string;
+}
