@@ -5,15 +5,14 @@ export class CommentProduct {
   id: string;
   content: string;
   images: string[];
-  createdAt: Date;
   user?: {
     id: string;
     name: string;
     avatar: string;
   };
   parentId?: string;
-  parent?: CommentProduct;
-  children?: CommentProduct[];
+  numberOfChildren: number;
+  createdAt: Date;
 }
 
 export class GetCommentsByProductIdQueryResponse extends PaginatedOutputDto<CommentProduct> {

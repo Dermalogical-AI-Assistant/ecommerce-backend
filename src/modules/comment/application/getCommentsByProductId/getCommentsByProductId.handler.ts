@@ -6,16 +6,13 @@ import {
   CommentProduct,
   GetCommentsByProductIdQueryResponse,
 } from './getCommentsByProductId.response';
-import { CommentEntity } from 'src/generated/comment.entity';
-import * as _ from 'lodash';
-import { NotFoundException } from '@nestjs/common';
 import { getOrderByDefault } from 'src/common/utils/order';
+import { GetCommentsByProductIdDto } from '../../comment.dto';
 
 @QueryHandler(GetCommentsByProductIdQuery)
 export class GetCommentsByProductIdHandler
-  implements IQueryHandler<GetCommentsByProductIdQuery>
-{
-  constructor(private readonly dbContext: PrismaService) {}
+  implements IQueryHandler<GetCommentsByProductIdQuery> {
+  constructor(private readonly dbContext: PrismaService) { }
 
   public async execute({
     query,
@@ -31,135 +28,64 @@ export class GetCommentsByProductIdHandler
         perPage,
         total,
       },
-      data: this.getOrganizedComments(comments),
+      data: comments.map(c => this.mapComment(c)),
     };
 
     return response as GetCommentsByProductIdQueryResponse;
   }
 
-  private async getComments(
-    options: GetCommentsByProductIdQuery,
-  ): Promise<{ total: number; comments: CommentProduct[] }> {
-    const {
+  private async getComments({
+    query: { parentId, perPage, page, order },
+    productId,
+  }: GetCommentsByProductIdQuery) {
+    const whereCondition: Prisma.CommentWhereInput = {
       productId,
-      query: { page, perPage, order },
-    } = options;
-
-    await this.validate(productId);
-
-    let whereCondition: Prisma.CommentWhereInput = { productId };
+      parentId: parentId ?? null
+    };
 
     const [total, comments] = await Promise.all([
-      this.dbContext.comment.count({
-        where: {
-          AND: whereCondition,
-        },
+      await this.dbContext.comment.count({
+        where: whereCondition
       }),
-      this.dbContext.comment.findMany({
-        where: {
-          AND: whereCondition,
-        },
-        include: {
-          parent: {
-            include: {
-              user: true,
-            },
+      await this.dbContext.comment.findMany({
+        where: whereCondition,
+        select: {
+          id: true,
+          content: true,
+          images: true,
+          parentId: true,
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+              name :true
+            }
           },
-          children: {
-            include: {
-              user: true,
-            },
-          },
-          user: true,
+          createdAt: true,
+          _count: {
+            select: {
+              children: true
+            }
+          }
         },
         orderBy: getOrderByDefault(order),
         skip: page * perPage,
         take: perPage,
-      }),
+      })
     ]);
 
-    return {
-      total,
-      comments: comments.map((comment) => this.convertToCommentProduct(comment)),
-    };
+    return { total, comments };
   }
 
-  private convertToCommentProduct(comment: CommentEntity): CommentProduct {
-    if (!comment) {
-      return null;
-    }
-
+  private mapComment(comment: GetCommentsByProductIdDto): CommentProduct {
     return {
       id: comment.id,
-      images: comment.images,
       content: comment.content,
-      createdAt: comment.createdAt,
+      images: comment.images,
       parentId: comment.parentId,
-      parent: this.convertToCommentProduct(comment.parent),
-      user: {
-        id: comment.user.id,
-        name: comment.user.name,
-        avatar: comment.user.avatar,
-      },
-      children: comment.children? comment.children.map((child) =>
-        this.convertToCommentProduct(child),
-      ): [],
-    };
-  }
-
-  private async validate(productId: string) {
-    const product = await this.dbContext.product.findUnique({
-      where: {
-        id: productId,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!product) {
-      throw new NotFoundException('This product is not found');
+      numberOfChildren: comment._count.children,
+      user: comment.user,
+      createdAt: comment.createdAt
     }
-  }
-
-  private getOrganizedComments(comments: CommentProduct[]) {
-    const filteredComments: CommentProduct[] = [];
-
-    const lowestComments = comments.filter((c) => !c.children.length);
-
-    for (const comment of lowestComments) {
-      let tempComment = comment;
-      let parentComment: CommentProduct;
-
-      do {
-        parentComment = this.getCommentParent(tempComment, comments);
-        tempComment = parentComment;
-      } while (tempComment?.parentId);
-
-      filteredComments.push(parentComment);
-    }
-
-    return _.uniqBy(filteredComments, 'id');
-  }
-
-  private getCommentParent(
-    comment: CommentProduct,
-    allComments: CommentProduct[],
-  ): CommentProduct {
-    if (!comment.parentId) {
-      return comment;
-    }
-
-    const parent = allComments.find((c) => c.id === comment.parentId);
-
-    this.modifyComment(comment, parent);
-
-    return parent;
-  }
-
-  private modifyComment(comment: CommentProduct, parent: CommentProduct) {
-    const editChild = parent.children.find((c) => c.id === comment.id);
-
-    editChild.children = comment.children;
   }
 }
