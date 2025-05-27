@@ -53,7 +53,7 @@ export class RabbitMqConsumer implements OnModuleInit {
     private async importBatchProducts(batchProducts: PreprocessedImportProductDto[]) {
         for (const productToImport of batchProducts) {
             console.log({ productToImport });
-            const additionalImages = [... new Set(productToImport.additionalImages.split(',').map(img => img.trim()))];
+            const additionalImages = productToImport.additionalImages ? [... new Set(productToImport.additionalImages.split(',').map(img => img.trim()))] : [];
             const skincareConcerns = [... new Set(productToImport.skincareConcerns.split(',').map(sc => sc.trim()))] as SkincareConcern[]
 
             const product = await this.dbContext.product.create({
@@ -63,7 +63,7 @@ export class RabbitMqConsumer implements OnModuleInit {
                     currency: productToImport.currency as CurrencyType,
                     additionalImages,
                     skincareConcerns,
-                    averageRating: Number(productToImport.averageRating),
+                    averageRating: productToImport.averageRating? Number(productToImport.averageRating) : 0,
                     price: Number(productToImport.price),
                     description: productToImport.description,
                     howToUse: productToImport.howToUse,

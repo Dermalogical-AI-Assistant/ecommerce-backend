@@ -8,7 +8,7 @@ import { GeMyWishlistOrderByEnum } from '../../wishlist.enum';
 
 @QueryHandler(GetMyWishlistQuery)
 export class GetMyWishlistHandler implements IQueryHandler<GetMyWishlistQuery> {
-  constructor(private readonly dbContext: PrismaService) {}
+  constructor(private readonly dbContext: PrismaService) { }
 
   public async execute({
     query,
@@ -36,17 +36,22 @@ export class GetMyWishlistHandler implements IQueryHandler<GetMyWishlistQuery> {
   private async getProductsInMyWishlist(options: GetMyWishlistQuery) {
     const {
       userId,
-      query: { page, perPage, order },
+      query: { productIds, page, perPage, order },
     } = options;
+
+    const whereCondition: Prisma.WishlistWhereInput = {
+      userId,
+      productId: {
+        in: productIds
+      }
+    };
 
     const [total, wishlists] = await Promise.all([
       this.dbContext.wishlist.count({
-        where: { userId },
+        where: whereCondition,
       }),
       this.dbContext.wishlist.findMany({
-        where: {
-          userId,
-        },
+        where: whereCondition,
         select: {
           product: true,
           createdAt: true,
