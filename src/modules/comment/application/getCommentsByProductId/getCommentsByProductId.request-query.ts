@@ -1,11 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { IsOrderQueryParam } from 'src/common/decorator/order.decorator';
 import { GetCommentsOrderByEnum } from '../../comment.enum';
 
 export class GetCommentsByProductIdRequestQuery {
+  @ApiPropertyOptional({
+    description: 'ID of comment parent',
+    example: '073bdc58-5a58-4293-a5c9-51a31643d1b8',
+  })
+  @IsOptional()
+  @IsUUID('all')
+  parentId?: string;
+
   @ApiPropertyOptional({
     description: 'Number of records to skip and then return the remainder',
     example: 0,
