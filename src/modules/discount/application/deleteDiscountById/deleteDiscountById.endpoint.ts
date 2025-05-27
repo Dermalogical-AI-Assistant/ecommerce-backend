@@ -6,6 +6,9 @@ import { DeleteDiscountByIdRequestParam } from './deleteDiscountById.request-par
 import { AuthenGuard } from 'src/common/guard/authen.guard';
 import { RequestUser } from 'src/common/decorator/requestUser.decorator';
 import { LoginUserDto } from 'src/common/dto/loginUser.dto';
+import { RoleGuard } from 'src/common/role/role.guard';
+import { Role } from 'src/common/role/role.decorator';
+import { RoleType } from '@prisma/client';
 
 @ApiTags('Discount')
 @Controller({
@@ -13,7 +16,8 @@ import { LoginUserDto } from 'src/common/dto/loginUser.dto';
   version: '1',
 })
 @ApiBearerAuth()
-@UseGuards(AuthenGuard)
+@UseGuards(AuthenGuard, RoleGuard)
+@Role(RoleType.ADMIN)
 export class DeleteDiscountByIdEndpoint {
   constructor(protected commandBus: CommandBus) {}
 

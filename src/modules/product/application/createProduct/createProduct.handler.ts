@@ -23,6 +23,7 @@ export class CreateProductHandler
       fullIngredientsList,
       howToUse,
       ingredientBenefits,
+      totalQuantity
     } = body;
 
     const skincareConcerns = [...new Set(body?.skincareConcerns || [])];
@@ -38,6 +39,7 @@ export class CreateProductHandler
         howToUse,
         ingredientBenefits,
         skincareConcerns,
+        totalQuantity
       },
       select: {
         id: true,
@@ -52,6 +54,7 @@ export class CreateProductHandler
         fullIngredientsList: true,
         description: true,
         howToUse: true,
+        totalQuantity: true
       },
     });
 
