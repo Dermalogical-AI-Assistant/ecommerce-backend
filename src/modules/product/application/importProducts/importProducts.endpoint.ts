@@ -49,8 +49,11 @@ export class ImportProductsEndpoint {
       destination: './uploads', // Files will be saved locally on disk in the ./uploads
       filename: (req, file, cb) => {
         const ext = path.extname(file.originalname); // Get extension (.csv)
-        const name = path.basename(file.originalname, ext).replace(/\s/g, ''); // Remove whitespace from filename
-        cb(null, `${name}-${Date.now()}${ext}`);
+        // const name = path.basename(file.originalname, ext).replace(/\s/g, ''); // Remove whitespace from filename
+        // cb(null, `${name}-${Date.now()}${ext}`);
+
+        const name = path.basename(file.originalname, ext);
+        cb(null, `${name}${ext}`);
       },
     }),
     fileFilter: (req, file, cb) => {

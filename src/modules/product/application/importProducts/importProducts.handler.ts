@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import { ImportLogService } from '../../services/importLog.service';
 import { RabbitMqService } from 'src/modules/rabbitmq/services/rabbitmq.service';
 import { PRODUCT_QUEUE } from 'src/common/queue/rabbitmq.queue';
+import * as fsPromise from 'fs/promises';
 
 @CommandHandler(ImportProductsCommand)
 export class ImportProductsHandler
@@ -35,6 +36,12 @@ export class ImportProductsHandler
       await this.rabbitMqService.publish(PRODUCT_QUEUE, batchProductsToImport); // i dont wanna 'fire & forget'
     }
 
+    await this.importLogService.writeLog({
+      importFileId: importFile.id,
+      contentLog: `Done!`,
+    });
+
+    await this.deleteFile(`./uploads/${file.filename}`)
     return { message: 'File processed successfully', rows: csvData.length, importFile };
   }
 
@@ -145,5 +152,14 @@ export class ImportProductsHandler
       ...product,
       currency: CurrencyType.POUND,
     } as PreprocessedImportProductDto;
+  }
+
+  private async deleteFile(filePath: string) {
+    try {
+      await fsPromise.unlink(filePath);
+      console.log(`File ${filePath} deleted successfully`);
+    } catch (err: any) {
+      console.error(`Error deleting file ${filePath}:`, err.message);
+    }
   }
 }

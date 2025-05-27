@@ -13,10 +13,12 @@ import { KafkaModule } from './modules/kafka';
 import { KafkaConsumerService } from './modules/kafka/services';
 import { UserService } from './modules/users/services';
 import { UserTopic } from './common/topic/user.topic';
+import { EventsModule } from './events';
 
 @Module({
   imports: [
-    // KafkaModule,
+    KafkaModule,
+    EventsModule,
     ProductModule,
     CommentModule,
     WishlistModule,
@@ -33,21 +35,21 @@ import { UserTopic } from './common/topic/user.topic';
 })
 export class AppModule {
   constructor(
-    // private readonly kafkaConsumerService: KafkaConsumerService,
-    // private readonly userService: UserService,
+    private readonly kafkaConsumerService: KafkaConsumerService,
+    private readonly userService: UserService,
   ) { }
 
   async onModuleInit() {
-    // this.kafkaConsumerService.registerHandler(UserTopic.CREATE_USER, async (message) => {
-    //   await this.userService.createUser(message);
-    // });
+    this.kafkaConsumerService.registerHandler(UserTopic.CREATE_USER, async (message) => {
+      await this.userService.createUser(message);
+    });
 
-    // this.kafkaConsumerService.registerHandler(UserTopic.UPDATE_USER, async (message) => {
-    //   await this.userService.updateUser(message);
-    // });
+    this.kafkaConsumerService.registerHandler(UserTopic.UPDATE_USER, async (message) => {
+      await this.userService.updateUser(message);
+    });
 
-    // this.kafkaConsumerService.registerHandler(UserTopic.DELETE_USER, async (message) => {
-    //   await this.userService.deleteUserById(message);
-    // });
+    this.kafkaConsumerService.registerHandler(UserTopic.DELETE_USER, async (message) => {
+      await this.userService.deleteUserById(message);
+    });
   }
 }

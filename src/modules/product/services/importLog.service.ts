@@ -9,14 +9,14 @@ export class ImportLogService {
 
   public async writeLog(option: {
     importFileId: string,
-    index: number,
+    index?: number,
     contentLog: string
   }) {
     const { importFileId, index, contentLog } = option;
     await this.dbContext.importLog.create({
       data: {
         fileId: importFileId,
-        content: `Product at index ${index} - ${contentLog}`,
+        content: index? `Product at index ${index} - ${contentLog}`: `${contentLog}`,
       },
     });
   }
