@@ -43,6 +43,13 @@ export class UpdateOrderByIdHandler
     } = body;
     const order = await this.orderService.validateOrderExistsById(id);
 
+    const orderItems = await this.dbContext.orderItem.findMany({
+      where: { orderId: id },
+      include: {
+        product: true,
+      }
+    });
+
     if (order.status != OrderStatus.PENDING && order.status != OrderStatus.DRAFT) {
       throw new BadRequestException('This order cannot be updated!');
     }
@@ -62,11 +69,46 @@ export class UpdateOrderByIdHandler
       }),
     };
 
-    await this.dbContext.order.update({
-      where: {
-        id,
-      },
-      data: updatedData
+    const processedOrderStatus = [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.DELIVERED] as OrderStatus[];
+    const isCancelStatus = (processedOrderStatus.includes(order.status)) && (status == OrderStatus.CANCELED);
+    const isConfirmStatus = (order.status == OrderStatus.PENDING) && (status == OrderStatus.CONFIRMED);
+
+    await this.dbContext.$transaction(async (tx) => {
+      const operations: Promise<any>[] = [];
+
+      // Always update the order
+      operations.push(
+        tx.order.update({
+          where: { id },
+          data: updatedData,
+        })
+      );
+
+      // If confirming order, subtract quantities
+      if (isConfirmStatus) {
+        for (const oi of orderItems) {
+          operations.push(
+            tx.product.update({
+              where: { id: oi.productId },
+              data: { totalQuantity: oi.product.totalQuantity - oi.quantity },
+            })
+          );
+        }
+      }
+
+      // If canceling order, add quantities
+      if (isCancelStatus) {
+        for (const oi of orderItems) {
+          operations.push(
+            tx.product.update({
+              where: { id: oi.productId },
+              data: { totalQuantity: oi.product.totalQuantity + oi.quantity },
+            })
+          );
+        }
+      }
+
+      await Promise.all(operations);
     });
   }
 }

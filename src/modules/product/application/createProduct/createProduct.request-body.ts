@@ -4,11 +4,13 @@ import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
+  IsInt,
   IsOptional,
   IsPositive,
   IsString,
   IsUrl,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateProductRequestBody {
@@ -47,6 +49,14 @@ export class CreateProductRequestBody {
   })
   @IsPositive()
   price: number;
+
+  @ApiProperty({
+    description: 'totalQuantity',
+    example: 100,
+  })
+  @IsInt()
+  @Min(0)
+  totalQuantity: number;
 
   @ApiProperty({
     description: 'Currency of price',

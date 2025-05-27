@@ -68,6 +68,12 @@ export class ProductEntity {
   })
   skincareConcerns: SkincareConcern[];
   @ApiProperty({
+    type: 'integer',
+    format: 'int32',
+    required: false,
+  })
+  totalQuantity: number;
+  @ApiProperty({
     type: 'string',
     format: 'date-time',
     required: false,

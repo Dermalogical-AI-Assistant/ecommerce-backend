@@ -4,6 +4,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateDiscountCommand } from './createDiscount.command';
 import { CreateDiscountRequestBody } from './createDiscount.request-body';
 import { AuthenGuard } from 'src/common/guard/authen.guard';
+import { RoleGuard } from 'src/common/role/role.guard';
+import { Role } from 'src/common/role/role.decorator';
+import { RoleType } from '@prisma/client';
 
 @ApiTags('Discount')
 @Controller({
@@ -11,7 +14,8 @@ import { AuthenGuard } from 'src/common/guard/authen.guard';
   version: '1',
 })
 @ApiBearerAuth()
-@UseGuards(AuthenGuard)
+@UseGuards(AuthenGuard, RoleGuard)
+@Role(RoleType.ADMIN)
 export class CreateDiscountEndpoint {
   constructor(protected commandBus: CommandBus) {}
 

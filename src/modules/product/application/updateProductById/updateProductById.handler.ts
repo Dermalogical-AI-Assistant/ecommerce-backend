@@ -23,11 +23,12 @@ export class UpdateProductByIdHandler
       fullIngredientsList,
       howToUse,
       ingredientBenefits,
-      skincareConcerns,
+      totalQuantity
     } = body;
 
     await this.productService.validateProductExistsById(id);
 
+    const skincareConcerns = [...new Set(body?.skincareConcerns || [])];
     const product = await this.dbContext.product.update({
       where: { id },
       data: {
@@ -41,6 +42,7 @@ export class UpdateProductByIdHandler
         howToUse,
         ingredientBenefits,
         skincareConcerns,
+        totalQuantity
       },
       select: {
         id: true,
@@ -56,6 +58,7 @@ export class UpdateProductByIdHandler
         fullIngredientsList: true,
         description: true,
         howToUse: true,
+        totalQuantity: true,
       },
     });
 

@@ -124,6 +124,7 @@ model Product {
   ingredientBenefits  String?           @map("ingredient_benefits") @db.Text
   fullIngredientsList String?           @map("full_ingredients_list") @db.Text
   skincareConcerns    SkincareConcern[] @map("skincare_concerns")
+  totalQuantity       Int               @default(0) @map("total_quantity")
   createdAt           DateTime          @default(now()) @db.Timestamp()
 
   wishlists  Wishlist[]

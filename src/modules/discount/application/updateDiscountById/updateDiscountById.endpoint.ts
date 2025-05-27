@@ -5,6 +5,9 @@ import { UpdateDiscountByIdCommand } from './updateDiscountById.command';
 import { UpdateDiscountByIdRequestBody } from './updateDiscountById.request-body';
 import { UpdateDiscountByIdRequestParam } from './updateDiscountById.request-param';
 import { AuthenGuard } from 'src/common/guard/authen.guard';
+import { RoleGuard } from 'src/common/role/role.guard';
+import { RoleType } from '@prisma/client';
+import { Role } from 'src/common/role/role.decorator';
 
 @ApiTags('Discount')
 @Controller({
@@ -12,7 +15,8 @@ import { AuthenGuard } from 'src/common/guard/authen.guard';
   version: '1',
 })
 @ApiBearerAuth()
-@UseGuards(AuthenGuard)
+@UseGuards(AuthenGuard, RoleGuard)
+@Role(RoleType.ADMIN)
 export class UpdateDiscountByIdEndpoint {
   constructor(protected commandBus: CommandBus) {}
 
