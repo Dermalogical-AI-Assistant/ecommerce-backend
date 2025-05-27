@@ -112,6 +112,10 @@ export class ImportProductsHandler
       await logError(`Average rating cannot be converted to number!`);
     }
 
+    const parsedTotalQuantity = product.totalQuantity ? Number(product.totalQuantity) : 0;
+    if (isNaN(parsedTotalQuantity)) {
+      await logError(`Total quantity cannot be converted to number!`);
+    }
 
     // Validate thumbnail URL
     if (product.thumbnail && !isValidUrl(product.thumbnail)) {

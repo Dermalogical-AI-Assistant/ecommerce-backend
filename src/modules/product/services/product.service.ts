@@ -167,7 +167,8 @@ export class ProductService {
             p.skincare_concern = apoc.coll.toSet(COALESCE(p.skincare_concern, []) + $skincare_concern),
             p.description = $description,
             p.how_to_use = $how_to_use,
-            p.ingredient_benefits = $ingredient_benefits
+            p.ingredient_benefits = $ingredient_benefits,
+            p.total_quantity = $total_quantity
         RETURN p;
       `;
       const params = {
@@ -181,6 +182,7 @@ export class ProductService {
         description: product?.description,
         how_to_use: product?.howToUse,
         ingredient_benefits: product?.ingredientBenefits,
+        total_quantity: product.totalQuantity
       };
 
       const result = await this.neo4jService.write(query, params);
@@ -205,7 +207,8 @@ export class ProductService {
           p.ewg = $ewg,
           p.natural = $natural,
           p.analysis_text = $analysis_text,
-          p.analysis_description = $analysis_description
+          p.analysis_description = $analysis_description,
+          p.total_quantity = $total_quantity
       RETURN p;
       `;
 
@@ -220,11 +223,12 @@ export class ProductService {
       description: product?.description,
       how_to_use: product?.howToUse,
       ingredient_benefits: product?.ingredientBenefits,
+      total_quantity: product.totalQuantity,
       full_ingredients_list: product.fullIngredientsList,
       ewg: ewg ? JSON.stringify(ewg) : null,
       natural: natural ? JSON.stringify(natural) : null,
       analysis_text: ingredientsAnalysis?.text,
-      analysis_description: ingredientsAnalysis?.description,
+      analysis_description: ingredientsAnalysis?.description,      
     };
     const result = await this.neo4jService.write(MERGE_PRODUCT_QUERY, params);
 
@@ -255,6 +259,7 @@ export class ProductService {
       description: product?.description,
       how_to_use: product?.howToUse,
       ingredient_benefits: product?.ingredientBenefits,
+      total_quantity: product.totalQuantity,
     };
 
     const UPDATE_PRODUCT_QUERY = `
@@ -265,7 +270,8 @@ export class ProductService {
           p.skincare_concern = apoc.coll.toSet(COALESCE(p.skincare_concern, []) + $skincare_concern),
           p.description = $description,
           p.how_to_use = $how_to_use,
-          p.ingredient_benefits = $ingredient_benefits
+          p.ingredient_benefits = $ingredient_benefits,
+          p.total_quantity = $total_quantity
     `;
 
     const result = await this.neo4jService.write(UPDATE_PRODUCT_QUERY, params);

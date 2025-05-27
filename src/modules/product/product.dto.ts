@@ -71,6 +71,7 @@ export class ImportProductDto {
   additionalImages?: string;
   title?: string;
   price?: string;
+  totalQuantity?: string;
   currency?: string;
   averageRating?: string;
   description?: string;
@@ -85,6 +86,7 @@ export class PreprocessedImportProductDto {
   additionalImages?: string;
   title: string;
   price: string;
+  totalQuantity: string;
   currency: string;
   averageRating?: string;
   description?: string;

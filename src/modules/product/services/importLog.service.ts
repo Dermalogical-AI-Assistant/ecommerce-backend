@@ -16,7 +16,7 @@ export class ImportLogService {
     await this.dbContext.importLog.create({
       data: {
         fileId: importFileId,
-        content: index? `Product at index ${index} - ${contentLog}`: `${contentLog}`,
+        content: (typeof index === 'number') ? `Product at index ${index} - ${contentLog}` : `${contentLog}`,
       },
     });
   }

@@ -4,6 +4,7 @@ import { PrismaService } from 'src/database';
 import { OrderService } from 'src/modules/order/services';
 import { OrderStatus, RoleType } from '@prisma/client';
 import { BadRequestException } from '@nestjs/common';
+import { ProductService } from 'src/modules/product/services';
 
 @CommandHandler(UpdateOrderByIdCommand)
 export class UpdateOrderByIdHandler
@@ -11,6 +12,7 @@ export class UpdateOrderByIdHandler
   constructor(
     private readonly dbContext: PrismaService,
     private readonly orderService: OrderService,
+    private readonly productService: ProductService
   ) { }
 
   public async execute(command: UpdateOrderByIdCommand): Promise<void> {
@@ -74,24 +76,38 @@ export class UpdateOrderByIdHandler
     const isConfirmStatus = (order.status == OrderStatus.PENDING) && (status == OrderStatus.CONFIRMED);
 
     await this.dbContext.$transaction(async (tx) => {
-      const operations: Promise<any>[] = [];
-
-      // Always update the order
-      operations.push(
-        tx.order.update({
-          where: { id },
-          data: updatedData,
-        })
-      );
+      tx.order.update({
+        where: { id },
+        data: updatedData,
+      });
 
       // If confirming order, subtract quantities
       if (isConfirmStatus) {
         for (const oi of orderItems) {
-          operations.push(
-            tx.product.update({
-              where: { id: oi.productId },
-              data: { totalQuantity: oi.product.totalQuantity - oi.quantity },
-            })
+          const product = await tx.product.update({
+            where: { id: oi.productId },
+            data: { totalQuantity: oi.product.totalQuantity - oi.quantity },
+            select: {
+              id: true,
+              title: true,
+              averageRating: true,
+              skincareConcerns: true,
+              thumbnail: true,
+              additionalImages: true,
+              createdAt: true,
+              price: true,
+              currency: true,
+              ingredientBenefits: true,
+              fullIngredientsList: true,
+              description: true,
+              howToUse: true,
+              totalQuantity: true,
+            }
+          });
+
+          await this.productService.updateProductInNeo4j(
+            product,
+            false,
           );
         }
       }
@@ -99,16 +115,32 @@ export class UpdateOrderByIdHandler
       // If canceling order, add quantities
       if (isCancelStatus) {
         for (const oi of orderItems) {
-          operations.push(
-            tx.product.update({
-              where: { id: oi.productId },
-              data: { totalQuantity: oi.product.totalQuantity + oi.quantity },
-            })
+          const product = await tx.product.update({
+            where: { id: oi.productId },
+            data: { totalQuantity: oi.product.totalQuantity + oi.quantity },
+            select: {
+              id: true,
+              title: true,
+              averageRating: true,
+              skincareConcerns: true,
+              thumbnail: true,
+              additionalImages: true,
+              createdAt: true,
+              price: true,
+              currency: true,
+              ingredientBenefits: true,
+              fullIngredientsList: true,
+              description: true,
+              howToUse: true,
+              totalQuantity: true,
+            }
+          });
+          await this.productService.updateProductInNeo4j(
+            product,
+            false,
           );
         }
       }
-
-      await Promise.all(operations);
     });
   }
 }
