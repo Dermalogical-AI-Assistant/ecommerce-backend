@@ -69,6 +69,7 @@ export class RabbitMqConsumer implements OnModuleInit {
                     howToUse: productToImport.howToUse,
                     fullIngredientsList: productToImport.fullIngredientsList,
                     ingredientBenefits: productToImport.ingredientBenefits,
+                    totalQuantity: productToImport.totalQuantity? Number(productToImport.totalQuantity) : 0
                 },
                 select: {
                     id: true,
@@ -83,6 +84,7 @@ export class RabbitMqConsumer implements OnModuleInit {
                     fullIngredientsList: true,
                     description: true,
                     howToUse: true,
+                    totalQuantity: true,
                 },
             });
 
