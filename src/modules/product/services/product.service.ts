@@ -28,6 +28,11 @@ export class ProductService {
   async processIngredients(productId: string, analysis: IngredientAnalysis) {
     // 1. Merge Ingredients and create HAS relationships
     for (const ingredient of analysis?.ingredients_table || []) {
+      console.log({ingredient})
+      if (!ingredient.alias && !ingredient.introtext) {
+        continue;
+      }
+      
       const MERGE_INGREDIENT_QUERY = `
         MERGE (i:Ingredient {id: $id})
         SET i.title = $title,

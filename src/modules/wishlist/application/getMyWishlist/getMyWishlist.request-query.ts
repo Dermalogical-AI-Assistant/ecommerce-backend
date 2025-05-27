@@ -1,11 +1,24 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsArray, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 import { IsOrderQueryParam } from 'src/common/decorator/order.decorator';
 import { GeMyWishlistOrderByEnum } from '../../wishlist.enum';
 
 export class GetWishlistRequestQuery {
+  @ApiPropertyOptional({
+    description: 'Product IDs',
+    type: Array
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  @Transform(({ value }) => {
+    const productIds = Array.isArray(value) ? value : [value];
+    return productIds;
+  })
+  productIds?: string[];
+
   @ApiPropertyOptional({
     description: 'Number of records to skip and then return the remainder',
     example: 0,
