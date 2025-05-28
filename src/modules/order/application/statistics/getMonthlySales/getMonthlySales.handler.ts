@@ -2,7 +2,6 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PrismaService } from 'src/database';
 import { GetMonthlySalesQuery } from './getMonthlySales.query';
 import { GetMonthlySalesQueryResponse } from './getMonthlySales.response';
-import * as _ from 'lodash';
 import { getStartEndCurrentMonth } from 'src/common/utils/date';
 import { OrderStatus } from '@prisma/client';
 

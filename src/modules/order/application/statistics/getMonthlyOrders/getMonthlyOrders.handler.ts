@@ -3,7 +3,6 @@ import { OrderStatus } from '@prisma/client';
 import { PrismaService } from 'src/database';
 import { GetMonthlyOrdersQuery } from './getMonthlyOrders.query';
 import { GetMonthlyOrdersQueryResponse } from './getMonthlyOrders.response';
-import * as _ from 'lodash';
 import { getStartEndCurrentMonth } from 'src/common/utils/date';
 
 @QueryHandler(GetMonthlyOrdersQuery)

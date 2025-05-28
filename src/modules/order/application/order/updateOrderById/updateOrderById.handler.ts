@@ -73,7 +73,7 @@ export class UpdateOrderByIdHandler
       (
         (paymentMethod == PaymentMethod.COD && status == OrderStatus.DELIVERED)
         ||
-        (status == OrderStatus.PENDING && paymentMethod == PaymentMethod.VNPAY)
+        (paymentMethod == PaymentMethod.VNPAY && status == OrderStatus.PENDING)
       );
 
     const updatedData = {
