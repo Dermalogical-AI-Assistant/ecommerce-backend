@@ -50,5 +50,11 @@ export class OrderDto {
     format: 'date-time',
     required: false,
   })
+  paymentDate: Date;
+  @ApiProperty({
+    type: 'string',
+    format: 'date-time',
+    required: false,
+  })
   createdAt: Date;
 }
