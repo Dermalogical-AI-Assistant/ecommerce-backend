@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "order" ADD COLUMN     "payment_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

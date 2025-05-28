@@ -61,6 +61,12 @@ export class OrderEntity {
     format: 'date-time',
     required: false,
   })
+  paymentDate: Date;
+  @ApiProperty({
+    type: 'string',
+    format: 'date-time',
+    required: false,
+  })
   createdAt: Date;
   @ApiProperty({
     required: false,

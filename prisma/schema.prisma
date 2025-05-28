@@ -246,6 +246,7 @@ model Order {
   finalAmount       Float         @default(0) @map("final_amount") @db.DoublePrecision
   paymentMethod     PaymentMethod @default(COD) @map("payment_method")
   paymentStatus     PaymentStatus @default(UNPAID) @map("payment_status")
+  paymentDate       DateTime      @default(now()) @map("payment_date") @db.Timestamp()
   createdAt         DateTime      @default(now()) @db.Timestamp()
 
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_order_user")

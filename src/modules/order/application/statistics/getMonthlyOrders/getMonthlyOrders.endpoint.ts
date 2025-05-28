@@ -1,9 +1,9 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetOrdersCountQuery } from './getOrdersCount.query';
+import { GetMonthlyOrdersQuery } from './getMonthlyOrders.query';
 import { PaginatedOutputDto } from 'src/common/dto/pageOutput.dto';
-import { GetOrdersCountQueryResponse } from './getOrdersCount.response';
+import { GetMonthlyOrdersQueryResponse } from './getMonthlyOrders.response';
 import { AuthenGuard } from 'src/common/guard/authen.guard';
 import { RoleGuard } from 'src/common/role/role.guard';
 import { Role } from 'src/common/role/role.decorator';
@@ -12,20 +12,20 @@ import { RoleType } from '@prisma/client';
 @ApiTags('Order')
 @ApiBearerAuth()
 @Controller({
-  path: 'orders-count',
+  path: 'orders-monthly',
   version: '1',
 })
 @UseGuards(AuthenGuard, RoleGuard)
 @Role(RoleType.ADMIN)
-export class GetOrdersCountEndpoint {
+export class GetMonthlyOrdersEndpoint {
   constructor(protected queryBus: QueryBus) { }
 
-  @ApiOperation({ description: 'Get orders count' })
+  @ApiOperation({ description: 'Get monthly orders' })
   @Get()
-  public get(): Promise<PaginatedOutputDto<GetOrdersCountQueryResponse>> {
+  public get(): Promise<PaginatedOutputDto<GetMonthlyOrdersQueryResponse>> {
     return this.queryBus.execute<
-      GetOrdersCountQuery,
-      PaginatedOutputDto<GetOrdersCountQueryResponse>
-    >(new GetOrdersCountQuery());
+      GetMonthlyOrdersQuery,
+      PaginatedOutputDto<GetMonthlyOrdersQueryResponse>
+    >(new GetMonthlyOrdersQuery());
   }
 }

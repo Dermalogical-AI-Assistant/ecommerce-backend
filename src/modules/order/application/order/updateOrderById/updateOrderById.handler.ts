@@ -2,10 +2,11 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateOrderByIdCommand } from './updateOrderById.command';
 import { PrismaService } from 'src/database';
 import { OrderService } from 'src/modules/order/services';
-import { OrderStatus, RoleType } from '@prisma/client';
+import { OrderStatus, PaymentMethod, PaymentStatus, RoleType } from '@prisma/client';
 import { BadRequestException } from '@nestjs/common';
 import { ProductService } from 'src/modules/product/services';
 import { PROCESSED_ORDER_STATUSES } from 'src/common/enum/order.enum';
+import { getDateNow } from 'src/common/utils/date';
 
 @CommandHandler(UpdateOrderByIdCommand)
 export class UpdateOrderByIdHandler
@@ -66,6 +67,15 @@ export class UpdateOrderByIdHandler
       throw new BadRequestException('You are not allowed to update this order!');
     }
 
+    const isCancelStatus = (PROCESSED_ORDER_STATUSES.includes(order.status)) && (status == OrderStatus.CANCELED);
+    const isConfirmStatus = (order.status == OrderStatus.PENDING) && (status == OrderStatus.CONFIRMED);
+    const isPaid = (paymentStatus == PaymentStatus.PAID) && (order.paymentStatus != PaymentStatus.PAID) &&
+      (
+        (paymentMethod == PaymentMethod.COD && status == OrderStatus.DELIVERED)
+        ||
+        (status == OrderStatus.PENDING && paymentMethod == PaymentMethod.VNPAY)
+      );
+
     const updatedData = {
       ...(shippingAddressId && { shippingAddressId }),
       ...(paymentMethod && { paymentMethod }),
@@ -75,18 +85,16 @@ export class UpdateOrderByIdHandler
         shippingFee, totalAmount: order.totalAmount - order.shippingFee + shippingFee,
         finalAmount: order.finalAmount - order.shippingFee + shippingFee
       }),
+      ...(isPaid && {
+        paymentDate: getDateNow()
+      })
     };
-
-    const isCancelStatus = (PROCESSED_ORDER_STATUSES.includes(order.status)) && (status == OrderStatus.CANCELED);
-    const isConfirmStatus = (order.status == OrderStatus.PENDING) && (status == OrderStatus.CONFIRMED);
-
 
     await this.dbContext.$transaction(async (tx) => {
       tx.order.update({
         where: { id },
         data: updatedData,
       });
-
       // If confirming order, subtract quantities
       if (isConfirmStatus) {
         for (const oi of orderItems) {

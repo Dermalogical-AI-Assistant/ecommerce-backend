@@ -5,4 +5,4 @@ export enum Order {
   DESC = 'desc',
 }
 
-export const PROCESSED_ORDER_STATUSES = [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.DELIVERED] as OrderStatus[];
+export const PROCESSED_ORDER_STATUSES = [OrderStatus.CONFIRMED, OrderStatus.SHIPPING, OrderStatus.DELIVERED] as OrderStatus[];
