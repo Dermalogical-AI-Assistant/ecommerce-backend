@@ -1,3 +1,3 @@
-import { ProductDto } from "src/generated";
+import { GetProductsResponse } from "../getProducts/getProducts.response";
 
-export type GetProductByIdQueryResponse = ProductDto;
+export type GetProductByIdQueryResponse = GetProductsResponse;

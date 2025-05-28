@@ -2,15 +2,16 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Prisma } from '@prisma/client';
 import { filterString } from 'src/common/utils/string';
 import { PrismaService } from 'src/database';
-import { GetProductsQueryResponse } from './getProducts.response';
+import { GetProductsQueryResponse, GetProductsResponse } from './getProducts.response';
 import { GetProductsQuery } from './getProducts.query';
 import { GetProductsRequestQuery } from './getProducts.request-query';
 import * as _ from 'lodash';
 import { GetProductOrderByEnum } from '../../product.enum';
+import { PROCESSED_ORDER_STATUSES } from 'src/common/enum/order.enum';
 
 @QueryHandler(GetProductsQuery)
 export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
-  constructor(private readonly dbContext: PrismaService) {}
+  constructor(private readonly dbContext: PrismaService) { }
 
   public async execute({
     query,
@@ -34,7 +35,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
   private async getProducts(options: GetProductsRequestQuery) {
     const { search, skincareConcerns, page, perPage, order } = options;
 
-    let whereCondition: Prisma.ProductWhereInput = {};
+    let whereCondition: Prisma.ProductWhereInput = { isDeleted: false };
 
     if (search) {
       whereCondition = {
@@ -88,6 +89,7 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
           fullIngredientsList: true,
           skincareConcerns: true,
           ingredientBenefits: true,
+          totalQuantity: true,
           createdAt: true,
         },
         orderBy: this.getOrderBy(order),
@@ -96,7 +98,29 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
       }),
     ]);
 
-    return { total, products };
+    const soldQuantities = await this.dbContext.orderItem.groupBy({
+      by: ['productId'],
+      where: {
+        productId: {
+          in: products.map(product => product.id),
+        },
+        order: {
+          status: {
+            in: PROCESSED_ORDER_STATUSES,
+          },
+        },
+      },
+      _sum: {
+        quantity: true,
+      },
+    });
+
+    const mappedProducts: GetProductsResponse[] = products.map(p => ({
+      ...p,
+      soldQuantity: soldQuantities.find(sq => sq.productId == p.id)?._sum.quantity ?? 0
+    }))
+
+    return { total, products: mappedProducts };
   }
 
   private getOrderBy(order?: string): { [key: string]: any } {

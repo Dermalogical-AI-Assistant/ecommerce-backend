@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateListOrderItemsCommand } from './createListOrderItems.command';
 import { PrismaService } from 'src/database';
 import { OrderService } from 'src/modules/order/services';
+import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(CreateListOrderItemsCommand)
 export class CreateListOrderItemsHandler
@@ -25,6 +26,10 @@ export class CreateListOrderItemsHandler
           id: true,
         },
       });
+
+    if (!defaultShippingAddress?.id) {
+      throw new NotFoundException('You do not have any shipping address!');
+    }
 
     let order = await this.dbContext.order.create({
       data: {
