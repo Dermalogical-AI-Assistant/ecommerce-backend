@@ -12,11 +12,14 @@ export class ProductService {
     private readonly dbContext: PrismaService,
     private readonly neo4jService: Neo4jService,
     private readonly ingredientService: IngredientService,
-  ) {}
+  ) { }
 
   public async validateProductExistsById(id: string) {
     const product = await this.dbContext.product.findUnique({
-      where: { id },
+      where: {
+        id,
+        isDeleted: false
+      },
     });
 
     if (!product) {
@@ -28,11 +31,11 @@ export class ProductService {
   async processIngredients(productId: string, analysis: IngredientAnalysis) {
     // 1. Merge Ingredients and create HAS relationships
     for (const ingredient of analysis?.ingredients_table || []) {
-      console.log({ingredient})
+      console.log({ ingredient })
       if (!ingredient.alias && !ingredient.introtext) {
         continue;
       }
-      
+
       const MERGE_INGREDIENT_QUERY = `
         MERGE (i:Ingredient {id: $id})
         SET i.title = $title,
@@ -51,8 +54,8 @@ export class ProductService {
         categories: ingredient.categories,
         properties: ingredient.boolean_properties
           ? Object.entries(ingredient.boolean_properties)
-              .filter(([_k, v]) => v === true)
-              .map(([k, _v]) => k)
+            .filter(([_k, v]) => v === true)
+            .map(([k, _v]) => k)
           : null,
         integer_properties: JSON.stringify(ingredient.integer_properties ?? {}),
         ewg: JSON.stringify(ingredient.ewg ?? {}),
@@ -228,7 +231,7 @@ export class ProductService {
       ewg: ewg ? JSON.stringify(ewg) : null,
       natural: natural ? JSON.stringify(natural) : null,
       analysis_text: ingredientsAnalysis?.text,
-      analysis_description: ingredientsAnalysis?.description,      
+      analysis_description: ingredientsAnalysis?.description,
     };
     const result = await this.neo4jService.write(MERGE_PRODUCT_QUERY, params);
 
@@ -272,6 +275,7 @@ export class ProductService {
           p.how_to_use = $how_to_use,
           p.ingredient_benefits = $ingredient_benefits,
           p.total_quantity = $total_quantity
+      RETURN p;
     `;
 
     const result = await this.neo4jService.write(UPDATE_PRODUCT_QUERY, params);

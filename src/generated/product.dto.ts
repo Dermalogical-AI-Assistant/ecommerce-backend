@@ -69,6 +69,10 @@ export class ProductDto {
   })
   totalQuantity: number;
   @ApiProperty({
+    required: false,
+  })
+  isDeleted: boolean;
+  @ApiProperty({
     type: 'string',
     format: 'date-time',
     required: false,

@@ -5,6 +5,7 @@ import { OrderService } from 'src/modules/order/services';
 import { OrderStatus, RoleType } from '@prisma/client';
 import { BadRequestException } from '@nestjs/common';
 import { ProductService } from 'src/modules/product/services';
+import { PROCESSED_ORDER_STATUSES } from 'src/common/enum/order.enum';
 
 @CommandHandler(UpdateOrderByIdCommand)
 export class UpdateOrderByIdHandler
@@ -23,8 +24,13 @@ export class UpdateOrderByIdHandler
     }
   }
 
-  private async updateOrderByAdmin({ id, body: { status } }: UpdateOrderByIdCommand) {
-    await this.orderService.validateOrderExistsById(id);
+  private async updateOrderByAdmin({ id, body: { status }, user }: UpdateOrderByIdCommand) {
+    const order = await this.orderService.validateOrderExistsById(id);
+    if (order.userId == user.id) {
+      await this.updateOrderByUser({ id, body: { status }, user });
+      return;
+    }
+
     await this.dbContext.order.update({
       where: {
         id
@@ -71,9 +77,9 @@ export class UpdateOrderByIdHandler
       }),
     };
 
-    const processedOrderStatus = [OrderStatus.PENDING, OrderStatus.SHIPPING, OrderStatus.DELIVERED] as OrderStatus[];
-    const isCancelStatus = (processedOrderStatus.includes(order.status)) && (status == OrderStatus.CANCELED);
+    const isCancelStatus = (PROCESSED_ORDER_STATUSES.includes(order.status)) && (status == OrderStatus.CANCELED);
     const isConfirmStatus = (order.status == OrderStatus.PENDING) && (status == OrderStatus.CONFIRMED);
+
 
     await this.dbContext.$transaction(async (tx) => {
       tx.order.update({
@@ -84,9 +90,16 @@ export class UpdateOrderByIdHandler
       // If confirming order, subtract quantities
       if (isConfirmStatus) {
         for (const oi of orderItems) {
+          console.log({
+            productQuantity: oi.product.totalQuantity,
+            orderItemQuantity: oi.quantity,
+            totalQuantity: oi.product.totalQuantity - oi.quantity
+          });
           const product = await tx.product.update({
             where: { id: oi.productId },
-            data: { totalQuantity: oi.product.totalQuantity - oi.quantity },
+            data: {
+              totalQuantity: oi.product.totalQuantity - oi.quantity
+            },
             select: {
               id: true,
               title: true,

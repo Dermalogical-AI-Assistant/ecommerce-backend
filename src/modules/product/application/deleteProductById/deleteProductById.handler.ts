@@ -5,16 +5,20 @@ import { ProductService } from '../../services';
 
 @CommandHandler(DeleteProductByIdCommand)
 export class DeleteProductByIdHandler
-  implements ICommandHandler<DeleteProductByIdCommand>
-{
+  implements ICommandHandler<DeleteProductByIdCommand> {
   constructor(
     private readonly dbContext: PrismaService,
     private readonly productService: ProductService,
-  ) {}
+  ) { }
 
   public async execute({ id }: DeleteProductByIdCommand): Promise<void> {
     await this.productService.validateProductExistsById(id);
-    await this.dbContext.product.delete({ where: { id } });
+    await this.dbContext.product.update({
+      where: { id },
+      data: {
+        isDeleted: true
+      }
+    });
     await this.productService.deleteProductFromNeo4j(id);
   }
 }

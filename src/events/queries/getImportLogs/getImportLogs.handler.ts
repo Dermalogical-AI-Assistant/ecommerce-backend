@@ -9,7 +9,6 @@ export class GetImportLogsHandler implements IQueryHandler<GetImportLogsQuery> {
 
   async execute({ importFileId }: GetImportLogsQuery): Promise<ImportLogDto[]> {
     const importFile = await this.dbContext.importFile.findFirst({select: {id: true}});
-    console.log({importFileId, importFile});
     const logs = await this.dbContext.importLog.findMany({ where: { fileId: importFile.id} });
     return logs; 
   }
