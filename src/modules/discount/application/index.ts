@@ -3,3 +3,4 @@ export * from './getDiscounts';
 export * from './getProductsByDiscountId';
 export * from './deleteDiscountById';
 export * from './updateDiscountById';
+export * from './getDiscountById';
