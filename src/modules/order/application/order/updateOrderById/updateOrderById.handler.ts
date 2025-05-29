@@ -25,10 +25,10 @@ export class UpdateOrderByIdHandler
     }
   }
 
-  private async updateOrderByAdmin({ id, body: { status }, user }: UpdateOrderByIdCommand) {
+  private async updateOrderByAdmin({ id, body, user }: UpdateOrderByIdCommand) {
     const order = await this.orderService.validateOrderExistsById(id);
     if (order.userId == user.id) {
-      await this.updateOrderByUser({ id, body: { status }, user });
+      await this.updateOrderByUser({ id, body, user });
       return;
     }
 
@@ -37,7 +37,7 @@ export class UpdateOrderByIdHandler
         id
       },
       data: {
-        status
+        status: body.status
       }
     })
   }
@@ -91,10 +91,11 @@ export class UpdateOrderByIdHandler
     };
 
     await this.dbContext.$transaction(async (tx) => {
-      tx.order.update({
+      await tx.order.update({
         where: { id },
         data: updatedData,
       });
+
       // If confirming order, subtract quantities
       if (isConfirmStatus) {
         for (const oi of orderItems) {
