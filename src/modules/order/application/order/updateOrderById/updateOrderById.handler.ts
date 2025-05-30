@@ -27,10 +27,10 @@ export class UpdateOrderByIdHandler
 
   private async updateOrderByAdmin({ id, body, user }: UpdateOrderByIdCommand) {
     const order = await this.orderService.validateOrderExistsById(id);
-    if (order.userId == user.id) {
-      await this.updateOrderByUser({ id, body, user });
-      return;
-    }
+    // if (order.userId == user.id) {
+    //   await this.updateOrderByUser({ id, body, user });
+    //   return;
+    // }
 
     await this.dbContext.order.update({
       where: {
