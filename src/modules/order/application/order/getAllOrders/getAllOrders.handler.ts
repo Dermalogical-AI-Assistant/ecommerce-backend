@@ -5,10 +5,11 @@ import { GetAllOrdersQuery } from './getAllOrders.query';
 import { GetAllOrdersQueryResponse } from './getAllOrders.response';
 import * as _ from 'lodash';
 import { getOrderByDefault } from 'src/common/utils/order';
+import { filterString } from 'src/common/utils/string';
 
 @QueryHandler(GetAllOrdersQuery)
 export class GetAllOrdersHandler implements IQueryHandler<GetAllOrdersQuery> {
-  constructor(private readonly dbContext: PrismaService) {}
+  constructor(private readonly dbContext: PrismaService) { }
 
   public async execute({
     query,
@@ -33,20 +34,43 @@ export class GetAllOrdersHandler implements IQueryHandler<GetAllOrdersQuery> {
 
   private async getMyOrders(options: GetAllOrdersQuery) {
     const {
-      query: { page, perPage, order, status },
+      query: { page, perPage, order, status, search },
     } = options;
 
-    // Build where condition
-    const whereCondition: Prisma.OrderWhereInput = {
-      ...(status && { status: status as $Enums.OrderStatus }),
-    };
+    const andWhereConditions: Prisma.Enumerable<Prisma.OrderWhereInput> = [];
+
+    if (status) {
+      andWhereConditions.push({
+        status
+      })
+    }
+
+    if (search) {
+      andWhereConditions.push({
+        OR: [
+          {
+            id: filterString(search)
+          },
+          {
+            user: {
+              name: filterString(search)
+            },
+          },
+          {
+            user: {
+              email: filterString(search)
+            }
+          },
+        ],
+      });
+    }
 
     const [total, orders] = await Promise.all([
       this.dbContext.order.count({
-        where: whereCondition,
+        where: { AND: andWhereConditions },
       }),
       this.dbContext.order.findMany({
-        where: whereCondition,
+        where: { AND: andWhereConditions },
         select: {
           id: true,
           shippingAddress: true,
@@ -60,22 +84,22 @@ export class GetAllOrdersHandler implements IQueryHandler<GetAllOrdersQuery> {
           createdAt: true,
           orderItems: {
             select: {
-                id: true,
-                discountAmount: true,
-                finalPrice: true,
-                originalPrice: true,
-                note: true,
-                quantity: true,
-                product: true,
-                createdAt: true,
-                discounts: {
-                  select: {
-                    discount: true
-                  }
+              id: true,
+              discountAmount: true,
+              finalPrice: true,
+              originalPrice: true,
+              note: true,
+              quantity: true,
+              product: true,
+              createdAt: true,
+              discounts: {
+                select: {
+                  discount: true
                 }
-              },
+              }
             },
           },
+        },
         orderBy: getOrderByDefault(order),
         skip: page * perPage,
         take: perPage,

@@ -7,6 +7,23 @@ import { GetOrdersOrderByEnum } from 'src/modules/order/order.enum';
 
 export class GetAllOrdersRequestQuery {
   @ApiPropertyOptional({
+    description: 'Filter orders by Order ID or user email or user name',
+    example: 'jasminebkdn@gmail.com',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter orders by status',
+    example: 'PENDING',
+    enum: $Enums.OrderStatus,
+  })
+  @IsOptional()
+  @IsEnum($Enums.OrderStatus)
+  status?: $Enums.OrderStatus;
+
+  @ApiPropertyOptional({
     description: 'Number of records to skip and then return the remainder',
     example: 0,
   })
@@ -36,13 +53,4 @@ export class GetAllOrdersRequestQuery {
   @IsString()
   @IsOrderQueryParam('order', GetOrdersOrderByEnum)
   order?: string;
-
-  @ApiPropertyOptional({
-    description: 'Filter orders by status',
-    example: 'PENDING',
-    enum: $Enums.OrderStatus,
-  })
-  @IsOptional()
-  @IsEnum($Enums.OrderStatus)
-  status?: $Enums.OrderStatus;
 }
