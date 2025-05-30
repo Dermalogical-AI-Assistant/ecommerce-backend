@@ -1,14 +1,14 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { GetOrderByIdCommand } from './getOrderById.command';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { GetOrderByIdQuery } from './getOrderById.query';
 import { PrismaService } from 'src/database';
 import { OrderService } from 'src/modules/order/services';
 import { GetOrderByIdResponse } from './getOrderById.response';
 import { BadRequestException } from '@nestjs/common';
 import { RoleType } from '@prisma/client';
 
-@CommandHandler(GetOrderByIdCommand)
+@QueryHandler(GetOrderByIdQuery)
 export class GetOrderByIdHandler
-  implements ICommandHandler<GetOrderByIdCommand> {
+  implements IQueryHandler<GetOrderByIdQuery> {
   constructor(
     private readonly dbContext: PrismaService,
     private readonly orderService: OrderService,
@@ -16,8 +16,8 @@ export class GetOrderByIdHandler
 
   public async execute({
     id,
-    userId,
-  }: GetOrderByIdCommand): Promise<GetOrderByIdResponse> {
+    user,
+  }: GetOrderByIdQuery): Promise<GetOrderByIdResponse> {
     await this.orderService.validateOrderExistsById(id);
 
     const order = await this.dbContext.order.findUnique({
@@ -61,11 +61,10 @@ export class GetOrderByIdHandler
       },
     });
 
-    if (order.user.id !== userId && order.user.role != RoleType.ADMIN) {
+    if (order.user.id !== user.id && user.role != RoleType.ADMIN) {
       throw new BadRequestException('You are not allowed to view this order!');
     }
 
-    const { user, ...orderWithoutUser } = order;
-    return orderWithoutUser;
+    return order;
   }
 }

@@ -1,7 +1,7 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetOrderByIdCommand } from './getOrderById.command';
+import { GetOrderByIdQuery } from './getOrderById.query';
 import { GetOrderByIdRequestParam } from './getOrderById.request-param';
 import { AuthenGuard } from 'src/common/guard/authen.guard';
 import { RequestUser } from 'src/common/decorator/requestUser.decorator';
@@ -15,7 +15,7 @@ import { LoginUserDto } from 'src/common/dto/loginUser.dto';
 @ApiBearerAuth()
 @UseGuards(AuthenGuard)
 export class GetOrderByIdEndpoint {
-  constructor(protected commandBus: CommandBus) {}
+  constructor(protected queryBus: QueryBus) {}
 
   @ApiOperation({ description: 'Get order by id' })
   @Get(':id')
@@ -23,8 +23,8 @@ export class GetOrderByIdEndpoint {
     @Param() { id }: GetOrderByIdRequestParam,
     @RequestUser() user: LoginUserDto
   ): Promise<void> {
-    return this.commandBus.execute<GetOrderByIdCommand, void>(
-      new GetOrderByIdCommand(id, user.id),
+    return this.queryBus.execute<GetOrderByIdQuery, void>(
+      new GetOrderByIdQuery(id, user),
     );
   }
 }
