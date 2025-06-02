@@ -82,6 +82,7 @@ export class ImportProductDto {
 }
 
 export class PreprocessedImportProductDto {
+  index: number;
   thumbnail: string;
   additionalImages?: string;
   title: string;
@@ -94,4 +95,5 @@ export class PreprocessedImportProductDto {
   ingredientBenefits?: string;
   fullIngredientsList?: string;
   skincareConcerns: string;
+  importFileId: string;
 }

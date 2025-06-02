@@ -35,12 +35,16 @@ export class RabbitMqService implements OnModuleInit, OnModuleDestroy {
     }
 
     async publish(queue: string, data: any) {
-        await this.channel.sendToQueue(
+        const success = await this.channel.sendToQueue(
             queue,
-            Buffer.from(JSON.stringify(data)),
-            { persistent: true } as Options.Publish);
+            Buffer.from(JSON.stringify(data))
+        );
 
-        this.logger.log(`Message published to queue "${queue}"`);
+        if (!success) {
+            this.logger.warn(`Failed to write to queue "${queue}"`);
+        } else {
+            this.logger.log(`Message published to queue "${queue}"`);
+        }
     }
 
     async onModuleDestroy() {

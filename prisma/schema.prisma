@@ -79,6 +79,11 @@ enum OrderStatus {
   CANCELED
 }
 
+enum ImportLogStatus {
+  SUCCESS
+  FAILED
+}
+
 enum PaymentMethod {
   COD // CASH ON DELIVERY
   VNPAY
@@ -287,23 +292,38 @@ model Comment {
 }
 
 model ImportFile {
-  id        String   @id(map: "pk_import_file") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  name      String   @map("name") @db.VarChar(100)
-  createdAt DateTime @default(now()) @db.Timestamp()
+  id           String   @id(map: "pk_import_file") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  name         String   @map("name") @db.VarChar(100)
+  totalRecords Int      @default(0) @map("total_records") @db.Integer
+  createdAt    DateTime @default(now()) @db.Timestamp()
 
-  logs ImportLog[]
+  logs          ImportLog[]
+  socketClients ImportSocketClient[]
 
   @@map("import_file")
 }
 
 model ImportLog {
-  id        String   @id(map: "pk_import_log") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  fileId    String   @map("file_id") @db.Uuid
-  content   String   @map("content") @db.Text
-  createdAt DateTime @default(now()) @db.Timestamp()
+  id           String          @id(map: "pk_import_log") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  fileId       String          @map("file_id") @db.Uuid
+  content      String          @map("content") @db.Text
+  productIndex Int             @default(0) @map("product_index") @db.Integer
+  status       ImportLogStatus @default(SUCCESS) @map("status")
+  createdAt    DateTime        @default(now()) @db.Timestamp()
 
   file ImportFile @relation(fields: [fileId], references: [id], onDelete: Cascade, map: "fk_import_log_import_file")
 
   @@map("import_log")
+}
+
+model ImportSocketClient {
+  id        String   @id(map: "pk_import_socket_client") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  fileId    String   @map("file_id") @db.Uuid
+  clientId  String   @map("client_id") @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamp()
+
+  file ImportFile @relation(fields: [fileId], references: [id], onDelete: Cascade, map: "fk_import_socket_client_import_file")
+
+  @@map("import_socket_client")
 }
