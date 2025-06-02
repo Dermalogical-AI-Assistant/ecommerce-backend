@@ -1,37 +1,31 @@
-import {
-  Body,
-  Controller,
-  Post,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateImportFileCommand } from './createImportFile.command';
 import { RoleType } from '@prisma/client';
 import { Role } from 'src/common/role/role.decorator';
 import { AuthenGuard } from 'src/common/guard/authen.guard';
 import { RoleGuard } from 'src/common/role/role.guard';
-import { CommandBus } from '@nestjs/cqrs';
-import { ImportProductsCommand } from './importProducts.command';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
-import { ImportProductsRequestBody } from './importProducts.request-body';
+import { RequestUser } from 'src/common/decorator/requestUser.decorator';
+import { LoginUserDto } from 'src/common/dto/loginUser.dto';
 
 @ApiTags('Product')
 @Controller({
-  path: 'import-products',
+  path: 'import-file',
   version: '1',
 })
 @ApiBearerAuth()
 @UseGuards(AuthenGuard, RoleGuard)
 @Role(RoleType.ADMIN)
-export class ImportProductsEndpoint {
+export class CreateImportFileEndpoint {
   constructor(private readonly commandBus: CommandBus) { }
 
   @Post()
-  @ApiOperation({ summary: 'Import products from uploaded CSV file' })
+  @ApiOperation({ summary: 'Create import file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -40,24 +34,15 @@ export class ImportProductsEndpoint {
         file: {
           type: 'string',
           format: 'binary',
-          description: 'CSV file to import products',
-        },
-        importFileId: {
-          type: 'string',
-          description: 'Optional: ID of an existing import file',
-          example: '073bdc58-5a58-4293-a5c9-51a31643d1b8',
         },
       },
     },
   })
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads', // Files will be saved locally on disk in the ./uploads
+      destination: './uploads',
       filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname); // Get extension (.csv)
-        // const name = path.basename(file.originalname, ext).replace(/\s/g, ''); // Remove whitespace from filename
-        // cb(null, `${name}-${Date.now()}${ext}`);
-
+        const ext = path.extname(file.originalname);
         const name = path.basename(file.originalname, ext);
         cb(null, `${name}${ext}`);
       },
@@ -69,9 +54,9 @@ export class ImportProductsEndpoint {
       cb(null, true);
     },
   }))
-  async import(@UploadedFile() file: Express.Multer.File, @Body() body: ImportProductsRequestBody) {
+  async import(@UploadedFile() file: Express.Multer.File, @RequestUser() user: LoginUserDto) {
     return await this.commandBus.execute(
-      new ImportProductsCommand(body, file),
+      new CreateImportFileCommand(file, user.id),
     );
   }
 }

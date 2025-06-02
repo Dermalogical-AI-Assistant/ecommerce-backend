@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ImportFileDto {
+export class ImportSocketClientDto {
   @ApiProperty({
     required: false,
   })
@@ -8,17 +8,7 @@ export class ImportFileDto {
   @ApiProperty({
     required: false,
   })
-  userId: string;
-  @ApiProperty({
-    required: false,
-  })
-  name: string;
-  @ApiProperty({
-    type: 'integer',
-    format: 'int32',
-    required: false,
-  })
-  totalRecords: number;
+  clientId: string;
   @ApiProperty({
     type: 'string',
     format: 'date-time',

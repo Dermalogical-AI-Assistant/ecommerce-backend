@@ -63,3 +63,8 @@ export * from './create-import-log.dto';
 export * from './update-import-log.dto';
 export * from './import-log.entity';
 export * from './import-log.dto';
+export * from './connect-import-socket-client.dto';
+export * from './create-import-socket-client.dto';
+export * from './update-import-socket-client.dto';
+export * from './import-socket-client.entity';
+export * from './import-socket-client.dto';

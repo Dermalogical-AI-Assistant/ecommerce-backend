@@ -1,51 +1,41 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PrismaService } from 'src/database';
 import { ImportProductsCommand } from './importProducts.command';
 import * as fs from 'fs';
 import * as csv from 'csv-parser';
 import { ImportProductDto, PreprocessedImportProductDto } from '../../product.dto';
-import { CurrencyType, SkincareConcern } from '@prisma/client';
+import { CurrencyType, ImportLogStatus, SkincareConcern } from '@prisma/client';
 import { getCapitalizedWord, isValidUrl } from 'src/common/utils/string';
 import * as _ from 'lodash';
 import { ImportLogService } from '../../services/importLog.service';
 import { RabbitMqService } from 'src/modules/rabbitmq/services/rabbitmq.service';
 import { PRODUCT_QUEUE } from 'src/common/queue/rabbitmq.queue';
-import * as fsPromise from 'fs/promises';
+import { ImportFileService } from '../../services/importFile.service';
 
 @CommandHandler(ImportProductsCommand)
 export class ImportProductsHandler
   implements ICommandHandler<ImportProductsCommand> {
   constructor(
-    private readonly dbContext: PrismaService,
     private readonly importLogService: ImportLogService,
     private readonly rabbitMqService: RabbitMqService,
+    private readonly importFileService: ImportFileService
   ) { }
 
-  public async execute({ file, userId }: ImportProductsCommand): Promise<any> {
-    const importFile = await this.dbContext.importFile.create({
-      data: {
-        userId,
-        name: file.filename,
-      }
-    });
-
-    const csvData = [];
+  public async execute({ file, body: { importFileId } }: ImportProductsCommand): Promise<any> {
+    await this.importFileService.validateImportFileExists(importFileId);
+    
     for await (const batch of this.parseCsvInBatches(file.path, 10)) {
-      csvData.push(...batch)
-      const { batchProductsToImport } = await this.validateBatchProduct(batch, importFile.id);
+      const { batchProductsToImport } = await this.validateBatchProduct(batch, importFileId);
+
       await this.rabbitMqService.publish(PRODUCT_QUEUE, batchProductsToImport); // i dont wanna 'fire & forget'
     }
 
-    await this.importLogService.writeLog({
-      importFileId: importFile.id,
-      contentLog: `Done!`,
-    });
+    await this.importFileService.deleteFile(`./uploads/${file.filename}`)
 
-    await this.deleteFile(`./uploads/${file.filename}`)
-    return { message: 'File processed successfully', rows: csvData.length, importFile };
+    return { message: 'File processed successfully!' };
+
   }
 
-  private async *parseCsvInBatches(filePath: string, batchSize = 10) {
+  private async * parseCsvInBatches(filePath: string, batchSize = 10) {
     const stream = fs.createReadStream(filePath).pipe(csv());
 
     let batch: any[] = [];
@@ -89,6 +79,7 @@ export class ImportProductsHandler
         importFileId,
         index: product.index,
         contentLog: message,
+        status: ImportLogStatus.FAILED
       });
       hasError = true;
     };
@@ -146,24 +137,10 @@ export class ImportProductsHandler
 
     if (hasError) return null;
 
-    await this.importLogService.writeLog({
-      importFileId,
-      contentLog: `Saved successfully!`,
-      index: product.index
-    });
-
     return {
       ...product,
       currency: CurrencyType.POUND,
+      importFileId
     } as PreprocessedImportProductDto;
-  }
-
-  private async deleteFile(filePath: string) {
-    try {
-      await fsPromise.unlink(filePath);
-      console.log(`File ${filePath} deleted successfully`);
-    } catch (err: any) {
-      console.error(`Error deleting file ${filePath}:`, err.message);
-    }
   }
 }

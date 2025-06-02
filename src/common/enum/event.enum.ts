@@ -1,0 +1,5 @@
+export enum ImportEventEnum {
+    GET_LOGS = 'GET_LOGS',
+    CONNECT_SOCKET_CLIENT = 'CONNECT_SOCKET_CLIENT',
+    DONE_CONNECT = 'DONE_CONNECT'
+}

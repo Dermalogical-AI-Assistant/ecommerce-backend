@@ -1,3 +1,4 @@
+import { ImportLogStatus } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ImportLogDto {
@@ -9,6 +10,17 @@ export class ImportLogDto {
     required: false,
   })
   content: string;
+  @ApiProperty({
+    type: 'integer',
+    format: 'int32',
+    required: false,
+  })
+  productIndex: number;
+  @ApiProperty({
+    enum: ImportLogStatus,
+    required: false,
+  })
+  status: ImportLogStatus;
   @ApiProperty({
     type: 'string',
     format: 'date-time',
