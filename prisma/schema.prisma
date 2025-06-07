@@ -45,18 +45,19 @@ enum CurrencyType {
 }
 
 enum SkincareConcern {
-  ACNE_BLEMISHES
-  ANTI_AGING
-  BLACKHEADS_PORES
-  COMBINATION_SKIN
-  DAMAGED_SKIN_BARRIER
-  DARK_CIRCLES
-  DRY_SKIN
-  DULL_SKIN
-  OILY_SKIN
-  PIGMENTATION
-  REDNESS
-  SENSITIVE_SKIN
+  ACNE_BLEMISHES // acne-blemishes
+  ANTI_AGING // anti-ageing
+  BLACKHEADS_PORES // blocked-pores-dead-skin = Blackheads and Pores
+  COMBINATION_SKIN // normal-combination
+  DAMAGED_SKIN_BARRIER // barrier-repair
+  DARK_CIRCLES // dark-circles
+  DRY_SKIN // dry-skin
+  DULL_SKIN // dull-skin
+  OILY_SKIN // oily-skin
+  PIGMENTATION // scars = Skincare for Scars & Hyperpigmentation
+  REDNESS // redness-rosacea
+  SENSITIVE_SKIN // sensitive
+  UNEVEN_SKINTONE // uneven-skin-tone
 }
 
 enum DiscountType {
