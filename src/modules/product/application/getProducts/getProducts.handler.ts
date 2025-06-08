@@ -8,6 +8,7 @@ import { GetProductsRequestQuery } from './getProducts.request-query';
 import * as _ from 'lodash';
 import { GetProductOrderByEnum } from '../../product.enum';
 import { PROCESSED_ORDER_STATUSES } from 'src/common/enum/order.enum';
+import { ProductDto } from 'src/generated';
 
 @QueryHandler(GetProductsQuery)
 export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
@@ -66,36 +67,41 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
       };
     }
 
+    const orderBy = this.getOrderBy(order);
+    const orderKey = Object.keys(orderBy)[0];
+
     const [total, products] = await Promise.all([
       this.dbContext.product.count({
         where: {
           AND: whereCondition,
         },
       }),
-      this.dbContext.product.findMany({
-        where: {
-          AND: whereCondition,
-        },
-        select: {
-          id: true,
-          thumbnail: true,
-          additionalImages: true,
-          price: true,
-          currency: true,
-          averageRating: true,
-          title: true,
-          description: true,
-          howToUse: true,
-          fullIngredientsList: true,
-          skincareConcerns: true,
-          ingredientBenefits: true,
-          totalQuantity: true,
-          createdAt: true,
-        },
-        orderBy: this.getOrderBy(order),
-        skip: page * perPage,
-        take: perPage,
-      }),
+      orderKey == GetProductOrderByEnum.BEST_SELLER ?
+        this.getBestSellerProducts(page, perPage) :
+        this.dbContext.product.findMany({
+          where: {
+            AND: whereCondition,
+          },
+          select: {
+            id: true,
+            thumbnail: true,
+            additionalImages: true,
+            price: true,
+            currency: true,
+            averageRating: true,
+            title: true,
+            description: true,
+            howToUse: true,
+            fullIngredientsList: true,
+            skincareConcerns: true,
+            ingredientBenefits: true,
+            totalQuantity: true,
+            createdAt: true,
+          },
+          orderBy,
+          skip: page * perPage,
+          take: perPage,
+        }),
     ]);
 
     const soldQuantities = await this.dbContext.orderItem.groupBy({
@@ -135,15 +141,48 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
       case GetProductOrderByEnum.MOST_LOVED: {
         return { averageRating: Prisma.SortOrder.desc };
       }
-      case GetProductOrderByEnum.BEST_SELLER: {
-        return {
-          orderItems: {
-            _count: Prisma.SortOrder.desc
-          }
-        };
-      }
+      // case GetProductOrderByEnum.BEST_SELLER: {
+      //   return {
+      //     orderItems: {
+      //       _count: Prisma.SortOrder.desc
+      //     }
+      //   };
+      // }
       default:
         return { [field]: direction };
     }
+  }
+
+  private async getBestSellerProducts(page: number, perPage: number): Promise<ProductDto[]> {
+    return this.dbContext.$queryRaw<ProductDto[]>`
+      SELECT 
+        p.id,
+        p.thumbnail,
+        p.additional_images,
+        p.price,
+        p.currency,
+        p.average_rating,
+        p.title,
+        p.description,
+        p.how_to_use,
+        p.full_ingredients_list,
+        p.skincare_concerns,
+        p.ingredient_benefits,
+        p.total_quantity,
+        p.createdAt
+      FROM "product" p
+      JOIN (
+        SELECT 
+          oi."product_id" AS "productId",
+          SUM(oi.quantity) AS totalSold
+        FROM "order_item" oi
+        JOIN "order" o ON oi."order_id" = o.id
+        WHERE o.status IN (${Prisma.join(PROCESSED_ORDER_STATUSES)})
+        GROUP BY oi."product_id"
+      ) sold ON p.id = sold."productId"
+      ORDER BY sold.totalSold DESC
+      OFFSET ${page * perPage}
+      LIMIT ${perPage}
+    `;
   }
 }
