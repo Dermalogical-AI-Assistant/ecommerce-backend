@@ -156,20 +156,21 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
   private async getBestSellerProducts(page: number, perPage: number): Promise<ProductDto[]> {
     return this.dbContext.$queryRaw<ProductDto[]>`
       SELECT 
-        p.id,
-        p.thumbnail,
-        p.additional_images,
-        p.price,
-        p.currency,
-        p.average_rating,
-        p.title,
-        p.description,
-        p.how_to_use,
-        p.full_ingredients_list,
-        p.skincare_concerns,
-        p.ingredient_benefits,
-        p.total_quantity,
-        p.createdAt
+        -- p.id,
+        -- p.thumbnail,
+        -- p.additional_images,
+        -- p.price,
+        -- p.currency,
+        -- p.average_rating,
+        -- p.title,
+        -- p.description,
+        -- p.how_to_use,
+        -- p.full_ingredients_list,
+        -- p.skincare_concerns,
+        -- p.ingredient_benefits,
+        -- p.total_quantity,
+        -- p.createdAt
+        p.*
       FROM "product" p
       JOIN (
         SELECT 
@@ -177,7 +178,9 @@ export class GetProductsHandler implements IQueryHandler<GetProductsQuery> {
           SUM(oi.quantity) AS totalSold
         FROM "order_item" oi
         JOIN "order" o ON oi."order_id" = o.id
-        WHERE o.status IN (${Prisma.join(PROCESSED_ORDER_STATUSES)})
+        WHERE o.status IN (${Prisma.join(
+          PROCESSED_ORDER_STATUSES.map(status => Prisma.sql`${status}::"OrderStatus"`)
+        )})
         GROUP BY oi."product_id"
       ) sold ON p.id = sold."productId"
       ORDER BY sold.totalSold DESC
