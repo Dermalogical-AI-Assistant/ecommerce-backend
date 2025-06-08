@@ -59,7 +59,7 @@ export class UpdateOrderByIdHandler
       }
     });
 
-    if (order.status != OrderStatus.PENDING && order.status != OrderStatus.DRAFT) {
+    if ((order.status != OrderStatus.PENDING && order.status != OrderStatus.DRAFT) && (user.role == RoleType.USER)) {
       throw new BadRequestException('This order cannot be updated!');
     }
 
