@@ -11,3 +11,7 @@ export function getStartEndCurrentMonth() {
 
   return { startOfCurrentMonth, endOfCurrentMonth };
 }
+
+export function getEndOfDay(date: Date) {
+  return dayjs(date).endOf('day').toDate();
+}

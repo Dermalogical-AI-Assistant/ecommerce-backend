@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateDiscountByIdCommand } from './updateDiscountById.command';
 import { PrismaService } from 'src/database';
 import { DiscountService } from '../../services';
+import { getEndOfDay } from 'src/common/utils/date';
 
 @CommandHandler(UpdateDiscountByIdCommand)
 export class UpdateDiscountByIdHandler
@@ -34,7 +35,7 @@ export class UpdateDiscountByIdHandler
         title,
         description,
         startTime: startTime ? new Date(startTime) : undefined,
-        endTime: endTime ? new Date(endTime) : undefined,
+        endTime: endTime ? getEndOfDay(new Date(endTime)) : undefined,
         publishDate: endTime ? new Date(publishDate) : undefined,
         discountType,
         discountValue,

@@ -1,6 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { DiscountStatus } from '@prisma/client';
 import _ from 'lodash';
 import { PrismaService } from 'src/database';
 
@@ -18,38 +16,5 @@ export class DiscountService {
     }
 
     return discount;
-  }
-
-  @Cron(CronExpression.EVERY_DAY_AT_10AM)
-  async handleDiscountStatusUpdate() {
-    const now = new Date();
-    await Promise.all([
-      this.dbContext.discount.updateMany({
-        where: {
-          startTime: {
-            lte: now,
-          },
-          endTime: {
-            gte: now,
-          },
-          status: { not: DiscountStatus.ACTIVE },
-        },
-        data: {
-          status: DiscountStatus.ACTIVE,
-        },
-      }),
-
-      this.dbContext.discount.updateMany({
-        where: {
-          endTime: {
-            lt: now,
-          },
-          status: { not: DiscountStatus.EXPIRED },
-        },
-        data: {
-          status: DiscountStatus.EXPIRED,
-        },
-      }),
-    ]);
   }
 }
