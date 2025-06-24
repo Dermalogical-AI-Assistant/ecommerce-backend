@@ -97,14 +97,15 @@ enum PaymentStatus {
 }
 
 model User {
-  id       String    @id(map: "pk_user") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
-  name     String    @map("name") @db.VarChar(255)
-  avatar   String?   @map("avatar") @db.VarChar(255)
-  email    String    @unique @map("email") @db.VarChar(255)
-  location String?   @map("location") @db.VarChar(255)
-  dob      DateTime? @map("date_of_birth") @db.Timestamptz(6)
-  gender   Gender    @default(FEMALE) @map("gender")
-  role     RoleType  @default(USER) @map("role")
+  id        String    @id(map: "pk_user") @default(dbgenerated("uuid_generate_v4()")) @map("id") @db.Uuid
+  name      String    @map("name") @db.VarChar(255)
+  avatar    String?   @map("avatar") @db.VarChar(255)
+  email     String    @unique @map("email") @db.VarChar(255)
+  location  String?   @map("location") @db.VarChar(255)
+  dob       DateTime? @map("date_of_birth") @db.Timestamptz(6)
+  gender    Gender    @default(FEMALE) @map("gender")
+  role      RoleType  @default(USER) @map("role")
+  isDeleted Boolean   @default(false) @map("is_deleted")
 
   orders     Order[]
   wishlists  Wishlist[]

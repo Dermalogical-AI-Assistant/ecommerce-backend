@@ -41,4 +41,8 @@ export class UserDto {
     required: false,
   })
   role: RoleType;
+  @ApiProperty({
+    required: false,
+  })
+  isDeleted: boolean;
 }

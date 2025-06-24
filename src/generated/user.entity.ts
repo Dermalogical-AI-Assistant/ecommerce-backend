@@ -49,6 +49,10 @@ export class UserEntity {
   })
   role: RoleType;
   @ApiProperty({
+    required: false,
+  })
+  isDeleted: boolean;
+  @ApiProperty({
     isArray: true,
     required: false,
   })

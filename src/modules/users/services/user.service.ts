@@ -23,10 +23,13 @@ export class UserService {
   }
 
   public async deleteUserById(id: string) {
-    await this.dbContext.user.delete({
+    await this.dbContext.user.update({
       where: {
         id,
       },
+      data: {
+        isDeleted: true,
+      }
     });
   }
 }
